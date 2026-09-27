@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="お客様が感じたことを選び、口コミの下書きになる体験を試せるKoe Growthの匿名デモです。">
+  <meta name="robots" content="noindex,nofollow">
+  <title>30秒で口コミの下書きを体験｜Koe Growth</title>
+  <!-- URL正規化と既定の計測拒否。公開時のGTMは必ずこの行より後へ置く。 -->
+  <script src="./privacy-bootstrap.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Koe Growth 体験版トップ">
+      <span class="brand-mark" aria-hidden="true">KG</span>
+      <span><strong>Koe Growth</strong><small>口コミ下書き・体験版</small></span>
+    </a>
+    <span class="demo-badge">架空店舗のデモ</span>
+  </header>
+
+  <main id="top" class="shell">
+    <section class="trial-card" aria-labelledby="screen-title">
+      <div class="trial-progress" aria-label="体験の進み具合">
+        <span class="progress-copy" id="progress-copy">はじめに</span>
+        <div class="progress-track" aria-hidden="true"><span id="progress-bar"></span></div>
+      </div>
+
+      <section class="screen is-active" data-screen="intro">
+        <div class="intro-layout">
+          <div>
+            <p class="eyebrow">架空美容室・SORA hair room</p>
+            <h1 id="screen-title">今日の「よかった」を、<br><span>30秒で口コミの下書きへ。</span></h1>
+            <p class="lead">文章を考えなくても大丈夫です。感じたことを選ぶと、選んだ内容だけで口コミの下書きができます。</p>
+            <button class="button button-primary" id="start-button" type="button">自分で体験してみる <span aria-hidden="true">→</span></button>
+          </div>
+          <aside class="promise-card" aria-label="この体験でできること">
+            <p class="promise-number">30<span>秒</span></p>
+            <p class="promise-title">選ぶだけ。<br>書く前で止まらない。</p>
+            <ul>
+              <li>複数選べます</li>
+              <li>選んでいないことは足しません</li>
+              <li>投稿せずに終了できます</li>
+            </ul>
+          </aside>
+        </div>
+        <p class="privacy-note"><span aria-hidden="true">●</span> 名前・住所・電話番号は入力しません。入力内容や口コミ本文は計測へ送りません。</p>
+      </section>
+
+      <section class="screen" data-screen="select" aria-labelledby="select-title">
+        <p class="eyebrow">STEP 1 / 3</p>
+        <h2 id="select-title">今日、感じたことを選んでください</h2>
+        <p class="section-lead">当てはまるものを、1つでも2つでも選べます。</p>
+
+        <div class="option-groups">
+          <fieldset>
+            <legend>仕上がりについて</legend>
+            <div class="option-grid">
+              <label class="choice"><input type="checkbox" value="仕上がりが希望に近く、うれしかったです。" data-category="finish"><span>仕上がりが希望に近かった</span></label>
+              <label class="choice"><input type="checkbox" value="髪がまとまりやすくなったと感じました。" data-category="finish"><span>髪がまとまりやすくなった</span></label>
+              <label class="choice"><input type="checkbox" value="手触りがやわらかくなったように感じました。" data-category="finish"><span>手触りがやわらかく感じた</span></label>
+              <label class="choice"><input type="checkbox" value="色味が気に入りました。" data-category="finish"><span>色味が気に入った</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>過ごした時間について</legend>
+            <div class="option-grid">
+              <label class="choice"><input type="checkbox" value="相談しやすく、安心してお願いできました。" data-category="service"><span>相談しやすかった</span></label>
+              <label class="choice"><input type="checkbox" value="施術内容の説明が分かりやすかったです。" data-category="service"><span>説明が分かりやすかった</span></label>
+              <label class="choice"><input type="checkbox" value="落ち着いて過ごせました。" data-category="service"><span>落ち着いて過ごせた</span></label>
+              <label class="choice"><input type="checkbox" value="またお願いしたいと思いました。" data-category="feeling"><span>またお願いしたいと思った</span></label>
+            </div>
+          </fieldset>
+        </div>
+
+        <label class="free-label" for="free-text">自分の言葉も足せます <span>任意</span></label>
+        <textarea id="free-text" maxlength="120" rows="3" placeholder="例：家での乾かし方も教えてもらえて安心しました"></textarea>
+        <div class="field-meta"><span>名前や連絡先などの個人情報は入力しないでください</span><span id="char-count">0 / 120</span></div>
+        <p class="form-error" id="selection-error" role="alert"></p>
+
+        <div class="actions split-actions">
+          <button class="button button-secondary" type="button" data-back="intro">← 戻る</button>
+          <button class="button button-primary" id="generate-button" type="button">口コミの下書きを見る →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="draft" aria-labelledby="draft-title">
+        <p class="eyebrow">STEP 2 / 3</p>
+        <h2 id="draft-title">選んだ言葉が、口コミの下書きになりました</h2>
+        <p class="section-lead">書かれているのは、あなたが選んだこと・入力したことだけです。</p>
+
+        <div class="draft-box">
+          <span class="draft-label">口コミの下書き</span>
+          <textarea id="draft-text" rows="7" aria-label="口コミの下書き"></textarea>
+          <div class="draft-footer">
+            <span>自由に直せます</span>
+            <button class="text-button" id="copy-button" type="button">文章をコピー</button>
+          </div>
+        </div>
+
+        <label class="confirm-row">
+          <input type="checkbox" id="confirm-checkbox">
+          <span>この文章は、自分が感じたことと合っています</span>
+        </label>
+        <p class="form-error" id="confirm-error" role="alert"></p>
+
+        <div class="actions split-actions">
+          <button class="button button-secondary" type="button" data-back="select">← 選び直す</button>
+          <button class="button button-primary" id="complete-button" type="button">この内容で体験を完了 →</button>
+        </div>
+        <button class="skip-button" id="stop-button" type="button">今回は投稿せずに終了する</button>
+      </section>
+
+      <section class="screen" data-screen="complete" aria-labelledby="complete-title">
+        <div class="complete-layout">
+          <div class="complete-check" aria-hidden="true">✓</div>
+          <p class="eyebrow">STEP 3 / 3</p>
+          <h2 id="complete-title">これが、Koe Growthの<br>口コミ下書き体験です。</h2>
+          <p class="lead">お客様は言葉を一から考えずに、自分が感じたことを口コミの下書きにできます。</p>
+          <div class="benefit-row">
+            <div><strong>お客様</strong><span>文章で止まらない</span></div>
+            <div><strong>お店</strong><span>お願いしやすくなる</span></div>
+            <div><strong>スタッフ</strong><span>届いた声が分かる</span></div>
+          </div>
+          <button class="button button-primary application-button" id="application-button" type="button">月額2,980円のセルフスタートを見る →</button>
+          <button class="text-button restart-button" id="restart-button" type="button">もう一度体験する</button>
+          <p class="trial-only">この試作では申込みは送信されません。公開時は正式な申込み画面へ進みます。</p>
+        </div>
+      </section>
+    </section>
+
+    <section class="measurement-note" aria-labelledby="measurement-title">
+      <p class="eyebrow">OWNER CHECK</p>
+      <h2 id="measurement-title">「見た人」ではなく、「動いた人」まで確かめます</h2>
+      <p>資料から体験ページへ来た数、体験を始めた数、下書きを完成した数、申込みを押した数を匿名で確認できる設計です。入力した文章は集計しません。</p>
+      <div class="metric-flow" aria-label="計測する4段階">
+        <span>資料から訪問</span><span aria-hidden="true">→</span><span>体験開始</span><span aria-hidden="true">→</span><span>下書き完成</span><span aria-hidden="true">→</span><span>申込みクリック</span>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="application-dialog">
+    <button class="dialog-close" type="button" aria-label="閉じる">×</button>
+    <p class="eyebrow">デモのため送信しません</p>
+    <h2>本番では、ここから申込みページへ進みます。</h2>
+    <p>このクリックは匿名のイベントとして端末内だけに記録されました。公開時に正式な申込みURLへ差し替えます。</p>
+    <button class="button button-primary dialog-ok" type="button">確認しました</button>
+  </dialog>
+
+  <section class="consent-banner" id="consent-banner" aria-labelledby="consent-title">
+    <div>
+      <strong id="consent-title">匿名の利用状況を、サービス改善に使ってもよいですか？</strong>
+      <p>選んだ言葉や口コミ本文、氏名・住所・電話番号は送りません。許可しなくても体験できます。<a href="#privacy">計測について</a></p>
+    </div>
+    <div class="consent-actions">
+      <button class="button button-secondary" id="consent-deny" type="button">許可しない</button>
+      <button class="button button-primary" id="consent-allow" type="button">匿名計測を許可</button>
+    </div>
+  </section>
+
+  <section class="privacy-panel" id="privacy" aria-labelledby="privacy-title">
+    <h2 id="privacy-title">この体験の計測について</h2>
+    <p>計測するのは、体験ページへの到着、開始、下書き作成、完了、申込みボタンの利用です。入力した文章や口コミ本文、個人情報は計測へ送りません。拒否した場合は計測も端末保存も行いません。</p>
+  </section>
+  <footer><span>Koe Growth</span><span>匿名体験プロトタイプ</span></footer>
+  <script src="./app.js" defer></script>
+</body>
+</html>

@@ -229,8 +229,9 @@ button:focus-visible{outline:3px solid var(--baton); outline-offset:3px}
   background:color-mix(in srgb, var(--warn) 9%, transparent); border-radius:0 12px 12px 0; font-size:15px}
 .banner{background:color-mix(in srgb, var(--warn) 14%, transparent); border:1px solid var(--warn);
   border-radius:14px; padding:10px 14px; font-size:14px}
-input[type=text]{width:100%; padding:12px 14px; border-radius:12px; border:2px solid var(--line);
+input[type=text],select{width:100%; padding:12px 14px; border-radius:12px; border:2px solid var(--line);
   background:var(--ground); color:var(--ink); font-family:inherit; font-size:16px}
+.keyline{font-family:monospace; font-size:13px; word-break:break-all; color:var(--soft)}
 label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; color:var(--soft); margin-bottom:5px}
 .contact{font-size:23px; font-family:var(--font-display); font-weight:700; user-select:all; word-break:break-all}
 .hold{position:relative; overflow:hidden}
@@ -490,6 +491,34 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
       </div>
       <div class="notice" id="pqStatus" hidden></div>
       <p class="sub" style="margin:0">答えを渡すかどうかは、それでも本人が決めます。本人が渡さなければ、<b>答えたという事実だけ</b>が分かります。中身は見えません。</p>
+    </div>
+
+    <div class="card stack">
+      <h2>AIに きいてもらう（じっけん）</h2>
+      <p class="sub" style="margin:0">オンにすると、2問目からの質問をAIがその場で作ります。台本ではなく、本人が言ったことに合わせて変わります。</p>
+      <div class="notice">
+        <b>送られるのは、文字にできた言葉だけです。声そのものは送りません。</b>
+        文字にできなかったときは、話題の名前（例：きょうりゅう）だけが送られます。
+        親に届くのは今までどおり<b>本人の生の声</b>で、AIが要約も解釈もしません。
+      </div>
+      <div><label class="fl" for="aiKeyIn">APIキー</label>
+        <input type="text" id="aiKeyIn" placeholder="sk-ant-..." autocomplete="off" spellcheck="false"></div>
+      <p class="sub" style="margin:0">キーはこのスマホの中だけに保存されます。<b>この端末を他人が触れる状態なら、入れないでください。</b></p>
+      <div><label class="fl" for="aiModelIn">モデル</label>
+        <select id="aiModelIn">
+          <option value="claude-opus-5-5">かしこさ優先（Claude Opus 5.5）</option>
+          <option value="claude-haiku-4-5">はやさ・やすさ優先（Claude Haiku 4.5）</option>
+        </select></div>
+      <label class="opt" for="aiOnIn">
+        <input type="checkbox" id="aiOnIn">
+        <span><span class="t">AIを つかう</span>
+        <span class="d">キーを入れて「ほぞんする」を押してから、オンにしてください</span></span>
+      </label>
+      <div class="row">
+        <button class="mini" id="saveAi">ほぞんする</button>
+        <button class="mini" id="testAi">つながるか ためす</button>
+      </div>
+      <div class="notice" id="aiStatus" hidden></div>
     </div>
 
     <div class="card stack">
@@ -1150,6 +1179,85 @@ function startRecog(){
 }
 function stopRecog(){ if (recog){ try{ recog.stop(); }catch(e){} recog = null; } }
 
+/* ═══ 6.5 AI（じっけん） ══════════════════════════════════════════
+   AIにさせるのは「つぎの しつもんを つくること」だけ。
+   子どもの声を要約させない・解釈させない・親に向けて何かを書かせない。
+   親に届くのは今までどおり本人の生の声。ここは絶対に動かさない。
+   サーバーは使わず、ブラウザから直接呼ぶ（親が自分のキーを入れる方式）。 */
+const AI_SYSTEM = [
+"あなたは「こえトリ」。6さいの子どもの はなしを きく、やさしい とりです。",
+"つぎの しつもんを ひとつだけ つくってください。",
+"",
+"まもること",
+"・ぜんぶ ひらがなと カタカナ。かんじは つかわない",
+"・25もじ いない。みじかく。ひとつの しつもんだけ",
+"・子どもが いった ことばの なかの「もの」か「ひと」を ひとつ えらんで、そのことを きく",
+"・「どうだった？」「どう おもう？」のように きもちを まとめさせる しつもんは きんし",
+"・かわりに「それで、どうなったの？」「そのとき なんて いったの？」のように、",
+"　つづきか、ぐたいてきな ことを きく",
+"・ほめない。おしえない。ちゅういしない。ただ きく",
+"・もじに できなかったと かいてあるときは、はなしている ことについて、",
+"　こたえやすい ぐたいてきな ことを きく",
+"・つらそうな ことを はなしていたら、せめずに、やさしく つづきを きく",
+"・しつもんの 文だけを かく。ほかの ことばは かかない"
+].join("\n");
+
+let aiLastError = "";
+function aiKey(){ return (LS.get("aiKey","")||"").trim(); }
+function aiModel(){ return LS.get("aiModel","claude-opus-5-5"); }
+function aiOn(){ return !!aiKey() && LS.get("aiOn", false); }
+
+async function aiAsk(text, ms){
+  const key = aiKey(); if (!key) return "";
+  const model = aiModel();
+  const body = { model: model, max_tokens: 120, system: AI_SYSTEM,
+                 messages: [{ role:"user", content: text }] };
+  if (model.indexOf("opus") >= 0) body.output_config = { effort: "low" };
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), ms || 6000);
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method:"POST", signal: ctl.signal,
+      headers: { "content-type":"application/json", "x-api-key": key,
+                 "anthropic-version":"2023-06-01",
+                 "anthropic-dangerous-direct-browser-access":"true" },
+      body: JSON.stringify(body)
+    });
+    clearTimeout(timer);
+    if (!r.ok){ aiLastError = "HTTP " + r.status + "：" + (await r.text()).slice(0,180); return ""; }
+    const d = await r.json();
+    if (d.stop_reason === "refusal"){ aiLastError = "AIが こたえを ことわりました"; return ""; }
+    aiLastError = "";
+    return (d.content||[]).filter(c=>c.type==="text").map(c=>c.text).join("").trim();
+  }catch(e){
+    clearTimeout(timer);
+    aiLastError = (e && e.name === "AbortError") ? "じかんぎれ（おそい）" : String((e && e.message) || e);
+    return "";
+  }
+}
+// へんな出力は つかわない。だめなら 台本の しつもんに もどす。
+function cleanQ(s){
+  if (!s) return "";
+  let q = (s.split("\n").map(x=>x.trim()).filter(Boolean)[0]) || "";
+  q = q.replace(/^[「『"'‘“\-・\s]+/, "").replace(/[」』"'’”]+$/, "").trim();
+  if (q.length < 3 || q.length > 40) return "";
+  if (/[A-Za-z]{4,}/.test(q)) return "";
+  if (!/[？?]$/.test(q)) q += "？";
+  return q;
+}
+// AIに わたす のは ここまでの やりとりだけ。声そのものは ぜったいに わたさない。
+function convoFor(){
+  const t = TOPIC[(sess && sess.topic) || "hoka"] || TOPIC.hoka;
+  let s = "はなしている こと：" + t.word + "\n";
+  (sess.turns||[]).forEach(tn => {
+    s += "\nこえトリ：" + tn.q + "\nこども："
+      + (tn.transcriptOk ? tn.transcript
+         : "（もじに できなかった。" + Math.max(1, Math.round(tn.ms/1000)) + "びょう はなした）") + "\n";
+  });
+  s += "\nつぎの しつもんを ひとつだけ。";
+  return s;
+}
+
 /* ═══ 7. おはなしの すすみかた ════════════════════════════════════ */
 let sess = null, stepIdx = 0, currentQ = "", quietSkip = false, fromParent = false;
 
@@ -1205,15 +1313,28 @@ function renderSteps(){
 }
 
 // 質問を読み上げてから、自動で聞きはじめる
-function runTalkStep(){
+async function runTalkStep(){
   const st = steps()[Math.min(stepIdx, steps().length-1)] || { q:"きかせて" };
-  currentQ = st.q;
+  let q = st.q;
   fromParent = !!st.fromParent;
-  $("#qText").textContent = currentQ;
+  $("#qText").textContent = q;
   $("#talkArt").innerHTML = bird("wave","bob");
   renderSteps();
   $("#qEnd").hidden  = sess.turns.length === 0;
   $("#qQuit").hidden = sess.turns.length > 0;
+  $("#fromParent").hidden = !fromParent;
+
+  // 2問目から、子どもが いま いったことに あわせて AI が しつもんを つくる。
+  // おそいとき・だめなときは、だまって 台本の しつもんに もどす。待たせない。
+  if (aiOn() && !fromParent && stepIdx > 0 && sess.turns.length > 0){
+    setTalkState("thinking");
+    const got = cleanQ(await aiAsk(convoFor(), 6000));
+    if (at !== "talk") return;
+    if (got){ q = got; sess.aiUsed = true; }
+  }
+  if (at !== "talk") return;
+  currentQ = q;
+  $("#qText").textContent = currentQ;
   setTalkState("speaking");
   let lead = "";
   if (stepIdx === 0){
@@ -1222,12 +1343,12 @@ function runTalkStep(){
     if (t) lead += t.word + "。" + t.lead + "。";   // えらんだ絵の名前を読み上げる＝言葉をおぼえる
   }
   if (fromParent) lead = "おうちのひとが、こう きいてるよ。";
-  $("#fromParent").hidden = !fromParent;
   sayThen(lead + currentQ, () => { if (at === "talk") beginRecording(); });
 }
 function setTalkState(s){
-  const speaking = s === "speaking", listening = s === "listening";
-  $("#speakSign").hidden = !speaking;
+  const speaking = s === "speaking", listening = s === "listening", thinking = s === "thinking";
+  $("#speakSign").hidden = !(speaking || thinking);
+  $("#speakSign").textContent = thinking ? "こえトリが かんがえてるよ" : "こえトリが はなしてるよ";
   $("#hearSign").hidden  = !listening;
   $("#qStop").hidden     = !listening;
   $("#talkHint").textContent = listening
@@ -1521,6 +1642,11 @@ async function renderParent(){
   $("#allNotice").hidden = m!=="all";
   $("#cName").value = LS.get("cName",""); $("#cTel").value = LS.get("cTel","");
 
+  // AI の せってい
+  $("#aiKeyIn").value   = LS.get("aiKey","");
+  $("#aiModelIn").value = aiModel();
+  $("#aiOnIn").checked  = LS.get("aiOn", false);
+
   // あずけた しつもんが どうなったか
   const pq = (LS.get("pq","")||"").trim();
   $("#pqInput").value = pq;
@@ -1610,6 +1736,29 @@ $("#askMic").addEventListener("click", getMic);
 $("#micRetry").addEventListener("click", ()=>{ resetMicScreen(); getMic(); });
 document.querySelectorAll(".opt").forEach(o =>
   o.addEventListener("click", () => { LS.set("pmode", o.dataset.mode); renderParent(); }));
+$("#saveAi").addEventListener("click", ()=>{
+  LS.set("aiKey", $("#aiKeyIn").value.trim());
+  LS.set("aiModel", $("#aiModelIn").value);
+  LS.set("aiOn", $("#aiOnIn").checked);
+  const st = $("#aiStatus"); st.hidden = false;
+  st.textContent = aiKey()
+    ? ("ほぞんしました。AIは " + (LS.get("aiOn",false) ? "オン" : "オフ") + " です。")
+    : "キーが からっぽです。AIは つかいません（台本のままです）。";
+});
+$("#testAi").addEventListener("click", async ()=>{
+  LS.set("aiKey", $("#aiKeyIn").value.trim());
+  LS.set("aiModel", $("#aiModelIn").value);
+  const st = $("#aiStatus"); st.hidden = false;
+  if (!aiKey()){ st.textContent = "さきに APIキーを いれてください。"; return; }
+  st.textContent = "ためしています…";
+  const t0 = Date.now();
+  const raw = await aiAsk("はなしている こと：きょうりゅう\n\nこえトリ：すきな きょうりゅう、なに？\nこども：ティラノサウルス。つよいから。\n\nつぎの しつもんを ひとつだけ。", 15000);
+  const ms = Date.now() - t0;
+  const q = cleanQ(raw);
+  st.textContent = q
+    ? ("つながりました（" + (ms/1000).toFixed(1) + "びょう）。AIが作った質問：「" + q + "」")
+    : ("つながりませんでした。" + (aiLastError || "りゆうは わかりません") + (raw ? " 返答：" + raw.slice(0,60) : ""));
+});
 $("#savePq").addEventListener("click", ()=>{
   LS.set("pq", $("#pqInput").value.trim());
   LS.set("pqDay", "");              // あずけ直したら、きょうもう一度聞ける

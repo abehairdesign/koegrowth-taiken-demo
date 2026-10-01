@@ -146,6 +146,22 @@ button:focus-visible{outline:3px solid var(--baton); outline-offset:3px}
 @keyframes bobd{0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-8px);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .dots i,.hear .pip{animation:none;opacity:1} }
 
+/* きょうの できごとを 絵で えらぶ */
+.topics{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.topic{display:flex; flex-direction:column; align-items:center; gap:2px;
+  padding:10px 6px 12px; border-radius:20px; background:var(--panel);
+  border:3px solid var(--line); box-shadow:0 4px 0 var(--line);
+  font-family:var(--font-display); font-weight:700; font-size:17px}
+.topic:active{transform:translateY(3px); box-shadow:0 1px 0 var(--line)}
+.topic svg{width:100%; max-width:118px; height:auto; overflow:visible}
+.topic svg *{stroke:var(--ink); stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round}
+.topic .ln{fill:none}
+.topic .bd{fill:var(--bird)} .topic .bl{fill:var(--belly)} .topic .bk{fill:var(--baton)}
+.topic .hs{fill:var(--house)} .topic .ch{fill:var(--chest)} .topic .pn{fill:var(--panel)}
+.topic .eye{fill:var(--ink); stroke:none}
+.topic .qm{stroke:none; fill:var(--ink); font-family:var(--font-display);
+  font-weight:900; font-size:38px; text-anchor:middle}
+
 /* こえトリの かお えらび */
 .feels{display:grid; grid-template-columns:1fr 1fr 1fr; gap:9px}
 .feel{display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:2px;
@@ -249,6 +265,16 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
         <button class="act quiet" id="micRetry">もういちど ためす</button>
       </div>
       <button class="mini" data-go="home">← もどる</button>
+    </div>
+  </section>
+
+  <!-- きょうの できごとを 絵で えらぶ（話題がきまると、質問がつながる） -->
+  <section class="screen" id="s-pick">
+    <div class="stack grow" style="justify-content:center">
+      <h2 style="text-align:center">きょう、あったのは どれ？</h2>
+      <p class="sub" style="text-align:center">はなしたい えを えらんでね。</p>
+      <div class="topics" id="topics"></div>
+      <button class="mini" data-go="home" style="align-self:center">🏠 やっぱり やめる</button>
     </div>
   </section>
 
@@ -472,34 +498,41 @@ const FACE_ACK = {
   wakaranai:"わからなくて いいよ。そのままで いいよ。"
 };
 
-/* 3往復。ボタンは押さない。
-   大事なきまり：評価を求めない。続きを求める。
-   「どうだった？」は体験をまとめて採点しろという大人の質問で、子どもは
-   「たのしかった」「ふつう」「わかんない」しか返せない。
-   かわりに「それで、どうなったの？」と続きを求めると、気持ちは勝手に出てくる。 */
-const OPENERS = [
-  "きょう、きゅうしょく なに たべた？",   // ほぼ確実に答えられる入口
-  "きょう、なにして あそんだ？",
-  "きょう、だれと あそんだ？",
-  "きょう、やすみじかん なにしてた？"
+/* ═══ 話題は 絵で きめる ══════════════════════════════════════════
+   文面がつながらなかった本当の理由は、アプリが話題を知らなかったこと。
+   「昼休み なにした？」→「外で あそんでた」→「で、なにした？」は、
+   聞いていない証拠を子どもに突きつけているのと同じ。
+   子どもが絵を選べば、アプリは話題を知る。あとは その中で続きを聞くだけでつながる。
+   絵は 読めない子のためでもあり、言葉をおぼえるためでもある（押すと名前を読み上げる）。 */
+const TOPICS = [
+  { id:"kyushoku", word:"きゅうしょく", lead:"きゅうしょくの はなし、きかせて",
+    qs:["きゅうしょく、なに たべた？","ぜんぶ たべれた？","いちばん おいしかったのは なに？"] },
+  { id:"soto", word:"そとあそび", lead:"そとで あそんだんだね",
+    qs:["そとで なにして あそんだ？","だれと あそんだ？","それで、どうなったの？"] },
+  { id:"tomodachi", word:"ともだち", lead:"ともだちの はなし、きかせて",
+    qs:["だれと いたの？","なにして あそんだ？","そのとき、なんて いった？"] },
+  { id:"sensei", word:"せんせい", lead:"せんせいの はなし、きかせて",
+    qs:["せんせい、なんて いってた？","それで、どうなったの？","きみは なんて こたえた？"] },
+  { id:"benkyou", word:"べんきょう", lead:"べんきょうの はなし、きかせて",
+    qs:["なにを べんきょうした？","むずかしかった？ かんたんだった？","できたとき、どうした？"] },
+  { id:"kaeri", word:"かえりみち", lead:"かえりみちの はなし、きかせて",
+    qs:["だれと かえった？","かえりみち、なにか あった？","それで、どうなったの？"] },
+  { id:"ouchi", word:"おうち", lead:"おうちの はなし、きかせて",
+    qs:["おうちで なにしてた？","だれと いた？","それで、どうなったの？"] },
+  { id:"hoka", word:"そのほか", lead:"きかせて",
+    qs:["なにが あったの？","それで、どうなったの？","そのとき、なんて いった？"] }
 ];
-// たくさん話した子には「続き」を、あまり話さなかった子にはもっと具体的なことを聞く
-const Q2_LONG  = "それで、どうなったの？";
-const Q2_SHORT = "それ、だれと いたの？";
-const Q3_LONG  = "そのとき、なんて いったの？";
-const Q3_SHORT = "きょう、いちばん おもしろかったのは なに？";
+const TOPIC = {}; TOPICS.forEach(t => TOPIC[t.id] = t);
 const NODS = ["そっか。","うんうん。","ちゃんと きいてるよ。","はなして くれて ありがとう。"];
 
-// 直前にどれだけ話したかで分ける。文字起こしに頼らないので iPhone でも効く。
-function talkedALot(){
-  const t = sess && sess.turns.length ? sess.turns[sess.turns.length-1] : null;
-  return !!(t && t.ms > 4000);
-}
+// えらんだ絵の話題の中で、3つ順番に聞く。話題がわかっているので文がつながる。
 const QUESTIONS = [
-  () => OPENERS[Math.floor(Math.random()*OPENERS.length)],
-  () => talkedALot() ? Q2_LONG : Q2_SHORT,
-  () => talkedALot() ? Q3_LONG : Q3_SHORT
+  () => topicQ(0), () => topicQ(1), () => topicQ(2)
 ];
+function topicQ(i){
+  const t = TOPIC[(sess && sess.topic) || "hoka"] || TOPIC.hoka;
+  return t.qs[i];
+}
 
 /* ═══ 2. ほぞん ═══════════════════════════════════════════════════ */
 const DB_NAME = "koe-no-baton", DB_VER = 2, STORE = "records";
@@ -617,6 +650,52 @@ function birdListening(){   // 耳を立てて、音の輪が広がる
     + '<path class="bk" d="M54 65l-8 6 8 7 8-7z"/>'
     + '<ellipse class="bd wig" cx="20" cy="66" rx="9" ry="15"/></g></svg>';
 }
+/* きょうの できごとの え。読めない子のための道しるべであり、言葉をおぼえる絵本でもある */
+const TOPIC_ART = {
+  kyushoku:
+    '<path class="ln" d="M32 16q-4-6 0-11M50 13q-4-6 0-11M68 16q-4-6 0-11"/>'
+    + '<path class="ch" d="M16 34h68a34 28 0 0 1-68 0z"/>'
+    + '<path class="bl" d="M27 34h46a23 9 0 0 1-46 0z"/>'
+    + '<path class="ln" d="M12 34h76"/><path class="ln" d="M40 64h20"/>',
+  soto:
+    '<circle class="bk" cx="50" cy="40" r="27"/>'
+    + '<path class="ln" d="M23 40h54M50 13v54M30 21q20 19 40 0M30 59q20-19 40 0"/>',
+  tomodachi:
+    '<circle class="bd" cx="33" cy="33" r="19"/>'
+    + '<path class="bd" d="M14 70v-6a19 12 0 0 1 38 0v6z"/>'
+    + '<circle class="bl" cx="68" cy="39" r="16"/>'
+    + '<path class="bl" d="M52 70v-4a16 10 0 0 1 32 0v4z"/>'
+    + '<circle class="eye" cx="27" cy="31" r="3"/><circle class="eye" cx="39" cy="31" r="3"/>'
+    + '<path class="ln" d="M28 39a7 7 0 0 0 10 0"/>'
+    + '<circle class="eye" cx="63" cy="37" r="2.6"/><circle class="eye" cx="73" cy="37" r="2.6"/>'
+    + '<path class="ln" d="M64 44a6 6 0 0 0 8 0"/>',
+  sensei:
+    '<rect class="hs" x="12" y="10" width="76" height="46" rx="4"/>'
+    + '<path class="ln" d="M26 26h28M26 36h46M26 46h20"/>'
+    + '<path class="ln" d="M24 56v12M76 56v12M12 56h76"/>',
+  benkyou:
+    '<rect class="pn" x="12" y="18" width="48" height="48" rx="3"/>'
+    + '<path class="ln" d="M22 32h28M22 42h28M22 52h18M22 18v48"/>'
+    + '<path class="bk" d="M80 10l9 7-33 42-12 4 4-13z"/>'
+    + '<path class="ln" d="M48 50l12 9"/>',
+  kaeri:
+    '<path class="ln" d="M33 26v-7a17 11 0 0 1 34 0v7"/>'
+    + '<rect class="bk" x="22" y="24" width="56" height="44" rx="9"/>'
+    + '<path class="ln" d="M22 46h56"/>'
+    + '<rect class="ch" x="42" y="46" width="16" height="12" rx="3"/>',
+  ouchi:
+    '<path class="hs" d="M12 40L50 10l38 30v28H12z"/>'
+    + '<path class="ln" d="M12 40L50 10l38 30"/>'
+    + '<rect class="pn" x="41" y="46" width="18" height="22" rx="2"/>'
+    + '<rect class="bl" x="20" y="46" width="13" height="12" rx="2"/>',
+  hoka:
+    '<circle class="bd" cx="50" cy="40" r="27"/>'
+    + '<text class="qm" x="50" y="54">？</text>'
+};
+function topicArt(id){
+  return '<svg viewBox="0 0 100 76" aria-hidden="true">' + (TOPIC_ART[id]||TOPIC_ART.hoka) + '</svg>';
+}
+
 function birdUp(){
   return '<svg class="art" viewBox="0 0 120 120" aria-hidden="true"><g class="s">'
     + '<path class="ln bob" d="M60 4v22M50 14l10-10 10 10"/>'
@@ -643,6 +722,7 @@ function go(name){
   if (from === "talk" && name !== "talk") abortRecording();
   if (name==="home")   { releaseMic(); renderHome(); say(homeSpeech()); }
   if (name==="mic")    { resetMicScreen(); }
+  if (name==="pick")   { renderPick(); }
   if (name==="talk")   { runTalkStep(); }
   if (name==="feel")   { renderFeel(); }
   if (name==="give")   { renderGive(); }
@@ -677,7 +757,7 @@ async function getMic(){
     stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true } });
     $("#micWaiting").hidden = true;
     LS.set("micOK", true);
-    go("talk");
+    go("pick");
     return true;
   }catch(err){
     $("#micWaiting").hidden = true; $("#micDenied").hidden = false;
@@ -761,15 +841,27 @@ function todayKey(d){ d = d||new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function newSession(){
   sess = { id:"s"+Date.now()+Math.random().toString(36).slice(2,6), at:Date.now(), day:todayKey(),
-           turns:[], feeling:null, handed:null, handedAt:null };
+           turns:[], topic:null, feeling:null, handed:null, handedAt:null };
   stepIdx = 0;
 }
 function startTalk(){
   if (!micSupported()){ showBanner("このブラウザでは録音できません。iPhoneはSafari、AndroidはChromeで開いてください。"); return; }
   newSession();
-  if (stream){ go("talk"); return; }
+  if (stream){ go("pick"); return; }
   go("mic");
   if (LS.get("micOK", false)) getMic();
+}
+function renderPick(){
+  $("#topics").innerHTML = TOPICS.map(t =>
+    '<button class="topic" data-t="'+t.id+'">'+topicArt(t.id)+'<span>'+t.word+'</span></button>').join("");
+  $("#topics").querySelectorAll(".topic").forEach(b =>
+    b.addEventListener("click", () => chooseTopic(b.dataset.t)));
+  say("きょう、あったのは どれ？ はなしたい えを えらんでね");
+}
+function chooseTopic(id){
+  sess.topic = id;
+  stepIdx = 0;
+  go("talk");
 }
 function renderSteps(){
   const n = QUESTIONS.length + 1;      // 質問 ＋ かおえらび
@@ -790,7 +882,12 @@ function runTalkStep(){
   $("#qEnd").hidden  = sess.turns.length === 0;
   $("#qQuit").hidden = sess.turns.length > 0;
   setTalkState("speaking");
-  const lead = (mode()==="all" && stepIdx===0) ? "はなすことは ぜんぶ おうちのひとに とどきます。" : "";
+  let lead = "";
+  if (stepIdx === 0){
+    if (mode()==="all") lead += "はなすことは ぜんぶ おうちのひとに とどきます。";
+    const t = TOPIC[sess.topic];
+    if (t) lead += t.word + "。" + t.lead + "。";   // えらんだ絵の名前を読み上げる＝言葉をおぼえる
+  }
   sayThen(lead + currentQ, () => { if (at === "talk") beginRecording(); });
 }
 function setTalkState(s){
@@ -972,6 +1069,11 @@ function feelChip(id, forParent){
 function sessCard(s, forParent){
   const card = document.createElement("div"); card.className = "sess";
   const hd = document.createElement("div"); hd.className = "head";
+  if (s.topic && TOPIC[s.topic]){
+    const tp = document.createElement("span");
+    tp.className = "tag kept"; tp.textContent = TOPIC[s.topic].word;
+    hd.appendChild(tp);
+  }
   const chip = feelChip(s.feeling, forParent); if (chip) hd.appendChild(chip);
   if (forParent){
     const time = document.createElement("span"); time.className = "time";

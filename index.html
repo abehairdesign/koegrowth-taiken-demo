@@ -94,6 +94,9 @@ button:focus-visible{outline:3px solid var(--baton); outline-offset:3px}
 .card{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:16px}
 .q{background:var(--panel); border:2px dashed var(--line); border-radius:22px; padding:20px 18px; text-align:center}
 .q .qtext{font-family:var(--font-display); font-size:25px; font-weight:700; line-height:1.5; text-wrap:balance}
+.q .pq{display:inline-block; font-family:var(--font-display); font-weight:700; font-size:13px;
+  background:var(--calm); color:#fff; border-radius:999px; padding:3px 12px; margin-bottom:10px}
+.hello{font-family:var(--font-display); font-weight:900; font-size:34px; line-height:1.3}
 
 .steps{display:flex; gap:7px; justify-content:center; align-items:center}
 .steps i{width:11px; height:11px; border-radius:50%; background:var(--line)}
@@ -239,7 +242,8 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
   <section class="screen on" id="s-home">
     <div class="center">
       <div id="homeArt"></div>
-      <div class="big">こえトリが きいてくれるよ</div>
+      <div class="hello" id="helloText">おかえり</div>
+      <div class="big" id="helloSub">きょうは どうだった？</div>
       <p class="sub" id="modeNote" hidden></p>
       <button class="act" id="goTalk"><span class="ico">🎤</span>おはなしする</button>
       <button class="act calm" id="goBox"><span class="ico">🧰</span>ことばの たからばこ</button>
@@ -282,7 +286,10 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
   <section class="screen" id="s-talk">
     <div class="stack grow" style="justify-content:center">
       <div class="steps" id="steps1"></div>
-      <div class="q"><div class="qtext" id="qText">—</div></div>
+      <div class="q">
+        <div class="pq" id="fromParent" hidden>おうちのひとから</div>
+        <div class="qtext" id="qText">—</div>
+      </div>
       <div id="talkArt"></div>
       <div class="center" style="flex:0; gap:10px">
         <div class="hear" id="hearSign" hidden><span class="pip"></span>きいてるよ</div>
@@ -454,6 +461,18 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
     </div>
 
     <div class="card stack">
+      <h2>こえトリに きいてほしいこと</h2>
+      <p class="sub" style="margin:0">こえトリが、おはなしの最後に代わりに聞きます。1日1回だけです。</p>
+      <input type="text" id="pqInput" placeholder="例：きょう、わすれもの なかった？">
+      <div class="row">
+        <button class="mini" id="savePq">あずける</button>
+        <button class="mini" id="clearPq">とりけす</button>
+      </div>
+      <div class="notice" id="pqStatus" hidden></div>
+      <p class="sub" style="margin:0">答えを渡すかどうかは、それでも本人が決めます。本人が渡さなければ、<b>答えたという事実だけ</b>が分かります。中身は見えません。</p>
+    </div>
+
+    <div class="card stack">
       <h2>こまったときの連絡先</h2>
       <p class="sub" style="margin:0">本人の「こまったとき」画面に出ます。つらい顔を選んだ日は、話し終わりにも自動で出ます。</p>
       <div><label class="fl" for="cName">なまえ</label><input type="text" id="cName" placeholder="例：ばあば"></div>
@@ -519,19 +538,55 @@ const TOPICS = [
     qs:["だれと かえった？","かえりみち、なにか あった？","それで、どうなったの？"] },
   { id:"ouchi", word:"おうち", lead:"おうちの はなし、きかせて",
     qs:["おうちで なにしてた？","だれと いた？","それで、どうなったの？"] },
+  { id:"gohan", word:"ごはん", lead:"ごはんの はなし、きかせて",
+    qs:["なに たべた？","だれと たべた？","いちばん おいしかったのは なに？"] },
+  { id:"yume", word:"ゆめ", lead:"ゆめの はなし、きかせて",
+    qs:["どんな ゆめ だった？","それで、どうなったの？","また みたい？"] },
+  { id:"tenki", word:"おてんき", lead:"そとを みてみよう",
+    qs:["きょうの おてんき、どう？","なにを きて いく？","そとで なにか したい？"] },
+  { id:"tanoshimi", word:"たのしみ", lead:"きょうの たのしみ、きかせて",
+    qs:["きょう、たのしみなこと なに？","だれと するの？","どんなふうに なったら いいな？"] },
+  { id:"ichiban", word:"きょう いちばん", lead:"きょうの いちばん、きかせて",
+    qs:["きょう いちばん よかったこと なに？","それで、どうなったの？","そのとき、なんて いった？"] },
+  { id:"ofuro", word:"おふろ", lead:"おふろの はなし、きかせて",
+    qs:["おふろ、どうだった？","だれと はいった？","なに はなした？"] },
+  { id:"ashita", word:"あした", lead:"あしたの はなし、きかせて",
+    qs:["あした、なにが ある？","たのしみ？ ちょっと いや？","どんなふうに したい？"] },
   { id:"hoka", word:"そのほか", lead:"きかせて",
     qs:["なにが あったの？","それで、どうなったの？","そのとき、なんて いった？"] }
 ];
 const TOPIC = {}; TOPICS.forEach(t => TOPIC[t.id] = t);
 const NODS = ["そっか。","うんうん。","ちゃんと きいてるよ。","はなして くれて ありがとう。"];
 
-// えらんだ絵の話題の中で、3つ順番に聞く。話題がわかっているので文がつながる。
-const QUESTIONS = [
-  () => topicQ(0), () => topicQ(1), () => topicQ(2)
-];
-function topicQ(i){
-  const t = TOPIC[(sess && sess.topic) || "hoka"] || TOPIC.hoka;
-  return t.qs[i];
+/* ═══ 時間で あいさつと 話題が かわる ═════════════════════════════
+   おはよう・こんにちは・おかえり・こんばんは。そのあとに続く言葉は時間でだいたい決まる。
+   朝に「かえりみち」を聞かない。夜に「きょうの たのしみ」を聞かない。 */
+const BANDS = {
+  asa:    { hello:"おはよう",    sub:"きょうが はじまるね",
+            topics:["gohan","tenki","yume","tanoshimi","hoka"] },
+  hiru:   { hello:"こんにちは",  sub:"いま、どんな かんじ？",
+            topics:["kyushoku","soto","benkyou","tomodachi","sensei","hoka"] },
+  yugata: { hello:"おかえり",    sub:"きょうは どうだった？",
+            topics:["kyushoku","soto","tomodachi","sensei","benkyou","kaeri","ouchi","hoka"] },
+  yoru:   { hello:"こんばんは",  sub:"きょうも おつかれさま",
+            topics:["ichiban","gohan","ofuro","ouchi","ashita","hoka"] }
+};
+function band(){
+  const h = new Date().getHours();
+  if (h >= 4  && h < 10) return "asa";
+  if (h >= 10 && h < 15) return "hiru";
+  if (h >= 15 && h < 19) return "yugata";
+  return "yoru";
+}
+function bandInfo(){ return BANDS[band()]; }
+
+/* おうちのひとから あずかった しつもん。こえトリが代わりに聞く。
+   答えを渡すかどうかは、それでも本人が決める。ここがこの製品の芯。 */
+function parentQuestion(){
+  const q = (LS.get("pq","") || "").trim();
+  if (!q) return "";
+  if (LS.get("pqDay","") === todayKey()) return "";   // 同じ日に二度は聞かない
+  return q;
 }
 
 /* ═══ 2. ほぞん ═══════════════════════════════════════════════════ */
@@ -688,6 +743,35 @@ const TOPIC_ART = {
     + '<path class="ln" d="M12 40L50 10l38 30"/>'
     + '<rect class="pn" x="41" y="46" width="18" height="22" rx="2"/>'
     + '<rect class="bl" x="20" y="46" width="13" height="12" rx="2"/>',
+  gohan:
+    '<path class="ln" d="M32 16q-4-6 0-11M50 13q-4-6 0-11M68 16q-4-6 0-11"/>'
+    + '<path class="ch" d="M16 34h68a34 28 0 0 1-68 0z"/>'
+    + '<path class="bl" d="M27 34h46a23 9 0 0 1-46 0z"/>'
+    + '<path class="ln" d="M12 34h76"/><path class="ln" d="M40 64h20"/>',
+  yume:
+    '<path class="bd" d="M50 4l6 13 14 2-10 9.5 2.5 14L50 36l-12.5 6.5 2.5-14-10-9.5 14-2z"/>'
+    + '<path class="pn" d="M28 70a14 14 0 0 1 2-27 19 19 0 0 1 36 4 12 12 0 0 1-2 23z"/>',
+  tenki:
+    '<circle class="bd" cx="40" cy="30" r="16"/>'
+    + '<path class="ln" d="M40 4v8M40 48v4M14 30h8M62 26h6M21 11l6 6M59 11l-6 6M21 49l6-6"/>'
+    + '<path class="pn" d="M48 70a11 11 0 0 1 2-21 15 15 0 0 1 28 3 10 10 0 0 1-2 18z"/>',
+  tanoshimi:
+    '<path class="ln" style="stroke:var(--baton);stroke-width:9" d="M14 64a36 36 0 0 1 72 0"/>'
+    + '<path class="ln" style="stroke:var(--bird);stroke-width:9" d="M23 64a27 27 0 0 1 54 0"/>'
+    + '<path class="ln" style="stroke:var(--house);stroke-width:9" d="M32 64a18 18 0 0 1 36 0"/>'
+    + '<path class="ln" d="M8 64h84"/>',
+  ichiban:
+    '<path class="ln" d="M34 8l11 20M66 8l-11 20"/>'
+    + '<circle class="bd" cx="50" cy="46" r="24"/>'
+    + '<path class="bk" d="M50 31l5 10.5 11.5 1.7-8.3 8 2 11.3L50 57.2 39.8 62.5l2-11.3-8.3-8L45 41.5z"/>',
+  ofuro:
+    '<path class="ln" d="M32 20q-5-7 0-13M52 17q-5-7 0-13"/>'
+    + '<path class="bl" d="M12 38h76v12a18 18 0 0 1-18 18H30a18 18 0 0 1-18-18z"/>'
+    + '<path class="ln" d="M8 38h84"/><path class="ln" d="M24 68v6M76 68v6"/>',
+  ashita:
+    '<path class="bd" d="M22 56a28 28 0 0 1 56 0z"/>'
+    + '<path class="ln" d="M8 56h84"/>'
+    + '<path class="ln" d="M50 8v10M20 20l7 8M80 20l-7 8M6 42h9M85 42h9"/>',
   hoka:
     '<circle class="bd" cx="50" cy="40" r="27"/>'
     + '<text class="qm" x="50" y="54">？</text>'
@@ -835,14 +919,14 @@ function startRecog(){
 function stopRecog(){ if (recog){ try{ recog.stop(); }catch(e){} recog = null; } }
 
 /* ═══ 7. おはなしの すすみかた ════════════════════════════════════ */
-let sess = null, stepIdx = 0, currentQ = "", quietSkip = false;
+let sess = null, stepIdx = 0, currentQ = "", quietSkip = false, fromParent = false;
 
 function todayKey(d){ d = d||new Date();
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
 function newSession(){
   sess = { id:"s"+Date.now()+Math.random().toString(36).slice(2,6), at:Date.now(), day:todayKey(),
-           turns:[], topic:null, feeling:null, handed:null, handedAt:null };
-  stepIdx = 0;
+           turns:[], topic:null, steps:[], feeling:null, handed:null, handedAt:null };
+  stepIdx = 0; fromParent = false;
 }
 function startTalk(){
   if (!micSupported()){ showBanner("このブラウザでは録音できません。iPhoneはSafari、AndroidはChromeで開いてください。"); return; }
@@ -852,7 +936,8 @@ function startTalk(){
   if (LS.get("micOK", false)) getMic();
 }
 function renderPick(){
-  $("#topics").innerHTML = TOPICS.map(t =>
+  const ids = bandInfo().topics;              // 時間帯に合う話題だけ出す
+  $("#topics").innerHTML = ids.map(id => TOPIC[id]).filter(Boolean).map(t =>
     '<button class="topic" data-t="'+t.id+'">'+topicArt(t.id)+'<span>'+t.word+'</span></button>').join("");
   $("#topics").querySelectorAll(".topic").forEach(b =>
     b.addEventListener("click", () => chooseTopic(b.dataset.t)));
@@ -860,11 +945,19 @@ function renderPick(){
 }
 function chooseTopic(id){
   sess.topic = id;
+  const t = TOPIC[id] || TOPIC.hoka;
+  sess.steps = t.qs.map(q => ({ q:q, fromParent:false }));
+  const pq = parentQuestion();
+  if (pq){                                   // おうちのひとの しつもんは さいごに あずかって きく
+    sess.steps.push({ q:pq, fromParent:true });
+    LS.set("pqDay", todayKey());
+  }
   stepIdx = 0;
   go("talk");
 }
+function steps(){ return (sess && sess.steps) ? sess.steps : []; }
 function renderSteps(){
-  const n = QUESTIONS.length + 1;      // 質問 ＋ かおえらび
+  const n = steps().length + 1;        // 質問 ＋ かおえらび
   let html = "";
   for (let i=0;i<n;i++){
     const cls = i<stepIdx ? "past" : (i===stepIdx ? "now" : "");
@@ -875,7 +968,9 @@ function renderSteps(){
 
 // 質問を読み上げてから、自動で聞きはじめる
 function runTalkStep(){
-  currentQ = QUESTIONS[Math.min(stepIdx, QUESTIONS.length-1)]();
+  const st = steps()[Math.min(stepIdx, steps().length-1)] || { q:"きかせて" };
+  currentQ = st.q;
+  fromParent = !!st.fromParent;
   $("#qText").textContent = currentQ;
   $("#talkArt").innerHTML = bird("wave","bob");
   renderSteps();
@@ -888,6 +983,8 @@ function runTalkStep(){
     const t = TOPIC[sess.topic];
     if (t) lead += t.word + "。" + t.lead + "。";   // えらんだ絵の名前を読み上げる＝言葉をおぼえる
   }
+  if (fromParent) lead = "おうちのひとが、こう きいてるよ。";
+  $("#fromParent").hidden = !fromParent;
   sayThen(lead + currentQ, () => { if (at === "talk") beginRecording(); });
 }
 function setTalkState(s){
@@ -934,14 +1031,18 @@ async function onRecorded(){
   }
   const type = (recorder && recorder.mimeType) || (chunks[0] && chunks[0].type) || "audio/webm";
   const blob = chunks.length ? new Blob(chunks, { type }) : null;
-  sess.turns.push({ q: currentQ, blob, mime:type, ms,
+  sess.turns.push({ q: currentQ, blob, mime:type, ms, fromParent: fromParent,
                     transcript: transcript.trim(), transcriptOk: recogWorked && !!transcript.trim() });
   await put(sess);                     // 話した時点で必ずのこす。渡すかどうかは別の話。
-  showAck(NODS[Math.floor(Math.random()*NODS.length)], "happy", advance, true);
+  // おうちのひとの しつもんに こたえたときは、第三者としての立ち位置をはっきり言う
+  const nod = fromParent
+    ? "おしえて くれて ありがとう。つたえるかは、あとで きめていいよ。"
+    : NODS[Math.floor(Math.random()*NODS.length)];
+  showAck(nod, "happy", advance, true);
 }
 function advance(){
   stepIdx++;
-  if (stepIdx >= QUESTIONS.length){ go("feel"); return; }
+  if (stepIdx >= steps().length){ go("feel"); return; }
   go("talk");
 }
 
@@ -977,7 +1078,7 @@ $("#qQuit").addEventListener("click", ()=>{
 });
 
 function renderFeel(){
-  stepIdx = QUESTIONS.length;
+  stepIdx = steps().length;
   renderSteps();
   $("#feels").innerHTML = FEELINGS.map(f =>
     '<button class="feel" data-f="'+f.id+'">'+head(f.face)+'<span>'+f.label+'</span></button>').join("");
@@ -992,7 +1093,7 @@ async function chooseFeel(id){
 }
 $("#feelSkip").addEventListener("click", ()=>{ sess.feeling = null; go("give"); });
 $("#moreTalk").addEventListener("click", ()=>{
-  stepIdx = QUESTIONS.length - 1;
+  stepIdx = Math.max(0, steps().length - 1);
   if (stream) go("talk"); else { go("mic"); if (LS.get("micOK",false)) getMic(); }
 });
 
@@ -1031,12 +1132,15 @@ function stepSeq(){
 /* ═══ 9. びょうが ═════════════════════════════════════════════════ */
 function mode(){ return LS.get("pmode","child"); }
 function homeSpeech(){
-  return mode()==="all"
-    ? "いま はなすことは ぜんぶ おうちのひとに とどきます。こえトリが きいてくれるよ"
-    : "こえトリが きいてくれるよ";
+  const b = bandInfo();
+  return (mode()==="all" ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "")
+    + b.hello + "。" + b.sub;
 }
 function renderHome(){
-  $("#homeArt").innerHTML = bird("wave","bob");
+  const b = bandInfo();
+  $("#homeArt").innerHTML = bird(band()==="yoru" ? "sleep" : "wave", "bob");
+  $("#helloText").textContent = b.hello;
+  $("#helloSub").textContent = b.sub;
   const a = mode()==="all";
   $("#modeNote").hidden = !a;
   $("#modeNote").textContent = a ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "";
@@ -1051,7 +1155,8 @@ function turnRow(t){
     el.appendChild(b);
   }
   const body = document.createElement("div"); body.className = "body";
-  const q = document.createElement("div"); q.className = "qq"; q.textContent = t.q;
+  const q = document.createElement("div"); q.className = "qq";
+  q.textContent = (t.fromParent ? "おうちのひとから：" : "") + t.q;
   const tx = document.createElement("div"); tx.className = "tx";
   tx.textContent = t.transcriptOk ? t.transcript : "（こえだけ・"+fmt(t.ms)+"）";
   body.appendChild(q); body.appendChild(tx);
@@ -1178,6 +1283,19 @@ async function renderParent(){
   $("#allNotice").hidden = m!=="all";
   $("#cName").value = LS.get("cName",""); $("#cTel").value = LS.get("cTel","");
 
+  // あずけた しつもんが どうなったか
+  const pq = (LS.get("pq","")||"").trim();
+  $("#pqInput").value = pq;
+  const st = $("#pqStatus");
+  if (!pq){ st.hidden = true; }
+  else {
+    const ans = rs.find(r => r.day===todayKey() && (r.turns||[]).some(t => t.fromParent));
+    if (!ans) st.textContent = "あずかりました。次のおはなしで、こえトリが代わりに聞きます。";
+    else if (ans.handed && ans.handed !== "no") st.textContent = "答えてくれました。下の「届いたおはなし」に入っています。";
+    else st.textContent = "答えてくれました。ただし本人はまだ渡していません。中身は見えません。";
+    st.hidden = false;
+  }
+
   const list = $("#parentList"); list.innerHTML = "";
   const visible = rs.filter(r => showAll || (r.handed && r.handed!=="no"));
   if (!visible.length){
@@ -1254,6 +1372,15 @@ $("#askMic").addEventListener("click", getMic);
 $("#micRetry").addEventListener("click", ()=>{ resetMicScreen(); getMic(); });
 document.querySelectorAll(".opt").forEach(o =>
   o.addEventListener("click", () => { LS.set("pmode", o.dataset.mode); renderParent(); }));
+$("#savePq").addEventListener("click", ()=>{
+  LS.set("pq", $("#pqInput").value.trim());
+  LS.set("pqDay", "");              // あずけ直したら、きょうもう一度聞ける
+  renderParent();
+});
+$("#clearPq").addEventListener("click", ()=>{
+  LS.set("pq", ""); LS.set("pqDay", "");
+  renderParent();
+});
 $("#saveContact").addEventListener("click", ()=>{
   LS.set("cName", $("#cName").value.trim()); LS.set("cTel", $("#cTel").value.trim());
   $("#savedMsg").hidden = false; setTimeout(()=>{ $("#savedMsg").hidden = true; }, 2000);

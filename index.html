@@ -558,12 +558,12 @@ const FEELINGS = [
 const FEEL = {}; FEELINGS.forEach(f => FEEL[f.id] = f);
 const TOUGH = ["kanashii","okotta","gaman"];
 const FACE_ACK = {
-  tanoshii:"にこにこの かおに なったよ。",
-  futsuu:"そっか。ふつうの ひも あるよね。",
-  kanashii:"そうだったんだね。しょんぼりの かおに するね。",
-  okotta:"そうだったんだね。いやだったんだね。",
-  gaman:"がまん したんだね。よく はなして くれたね。",
-  wakaranai:"わからなくて いいよ。そのままで いいよ。"
+  tanoshii:{d:"にこにこの かおに なったよ。",r:"にこにこの 顔に なったよ。"},
+  futsuu:{d:"そっか。ふつうの ひも あるよね。",r:"そっか。普通の 日も あるよね。"},
+  kanashii:{d:"そうだったんだね。しょんぼりの かおに するね。",r:"そうだったんだね。しょんぼりの 顔に するね。"},
+  okotta:{d:"そうだったんだね。いやだったんだね。",r:"そうだったんだね。嫌だったんだね。"},
+  gaman:{d:"がまん したんだね。よく はなして くれたね。",r:"我慢 したんだね。よく 話して くれたね。"},
+  wakaranai:{d:"わからなくて いいよ。そのままで いいよ。",r:"分からなくて いいよ。そのままで いいよ。"}
 };
 
 /* ═══ 話題は 絵で きめる ══════════════════════════════════════════
@@ -573,70 +573,66 @@ const FACE_ACK = {
    子どもが絵を選べば、アプリは話題を知る。あとは その中で続きを聞くだけでつながる。
    絵は 読めない子のためでもあり、言葉をおぼえるためでもある（押すと名前を読み上げる）。 */
 const TOPICS = [
-  { id:"kyushoku", word:"きゅうしょく", lead:"きゅうしょくの はなし、きかせて",
-    qs:["きゅうしょく、なに たべた？","ぜんぶ たべれた？","いちばん おいしかったのは なに？"] },
-  { id:"soto", word:"そとあそび", lead:"そとで あそんだんだね",
-    qs:["そとで なにして あそんだ？","だれと あそんだ？","それで、どうなったの？"] },
-  { id:"tomodachi", word:"ともだち", lead:"ともだちの はなし、きかせて",
-    qs:["だれと いたの？","なにして あそんだ？","そのとき、なんて いった？"] },
-  { id:"sensei", word:"せんせい", lead:"せんせいの はなし、きかせて",
-    qs:["せんせい、なんて いってた？","それで、どうなったの？","きみは なんて こたえた？"] },
-  { id:"benkyou", word:"べんきょう", lead:"べんきょうの はなし、きかせて",
-    qs:["なにを べんきょうした？","むずかしかった？ かんたんだった？","できたとき、どうした？"] },
-  { id:"kaeri", word:"かえりみち", lead:"かえりみちの はなし、きかせて",
-    qs:["だれと かえった？","かえりみち、なにか あった？","それで、どうなったの？"] },
-  { id:"ouchi", word:"おうち", lead:"おうちの はなし、きかせて",
-    qs:["おうちで なにしてた？","だれと いた？","それで、どうなったの？"] },
-  { id:"gohan", word:"ごはん", lead:"ごはんの はなし、きかせて",
-    qs:["なに たべた？","だれと たべた？","いちばん おいしかったのは なに？"] },
-  { id:"yume", word:"ゆめ", lead:"ゆめの はなし、きかせて",
-    qs:["どんな ゆめ だった？","それで、どうなったの？","また みたい？"] },
-  { id:"tenki", word:"おてんき", lead:"そとを みてみよう",
-    qs:["きょうの おてんき、どう？","なにを きて いく？","そとで なにか したい？"] },
-  { id:"tanoshimi", word:"たのしみ", lead:"きょうの たのしみ、きかせて",
-    qs:["きょう、たのしみなこと なに？","だれと するの？","どんなふうに なったら いいな？"] },
-  { id:"ichiban", word:"きょう いちばん", lead:"きょうの いちばん、きかせて",
-    qs:["きょう いちばん よかったこと なに？","それで、どうなったの？","そのとき、なんて いった？"] },
-  { id:"ofuro", word:"おふろ", lead:"おふろの はなし、きかせて",
-    qs:["おふろ、どうだった？","だれと はいった？","なに はなした？"] },
-  { id:"ashita", word:"あした", lead:"あしたの はなし、きかせて",
-    qs:["あした、なにが ある？","たのしみ？ ちょっと いや？","どんなふうに したい？"] },
-  { id:"hoka", word:"そのほか", lead:"きかせて",
-    qs:["なにが あったの？","それで、どうなったの？","そのとき、なんて いった？"] },
-
-  /* すきな はなし。いつでも出る。
-     6さいは「きょうの できごと」より「すきな きょうりゅう」のほうが ずっと たくさん しゃべる。
-     しゃべれば 言葉が ふえる。えらぶのが たのしいことが、そのまま 言葉の けいこになる。 */
-  { id:"kyoryu", word:"きょうりゅう", lead:"きょうりゅうの はなし、きかせて", fun:true,
-    qs:["すきな きょうりゅう、なに？","どんな きょうりゅう？ おおきい？","なんで すきなの？"] },
-  { id:"mushi", word:"むし", lead:"むしの はなし、きかせて", fun:true,
-    qs:["すきな むし、なに？","どこで みつけた？","どんな かたち してた？"] },
-  { id:"densha", word:"でんしゃ", lead:"でんしゃの はなし、きかせて", fun:true,
-    qs:["すきな でんしゃ、なに？","どこまで いってみたい？","だれと のりたい？"] },
-  { id:"doubutsu", word:"どうぶつ", lead:"どうぶつの はなし、きかせて", fun:true,
-    qs:["すきな どうぶつ、なに？","どんな こえで なくの？","あえたら なにする？"] },
-  { id:"asobi", word:"あそび", lead:"あそびの はなし、きかせて", fun:true,
-    qs:["なんの あそびが すき？","だれと やるの？","どこが いちばん たのしい？"] },
-  { id:"ehon", word:"えほん", lead:"えほんの はなし、きかせて", fun:true,
-    qs:["すきな おはなし、なに？","どんな はなし？","いちばん すきなところは どこ？"] },
-  { id:"shoubou", word:"しょうぼうしゃ", lead:"しょうぼうしゃの はなし、きかせて", fun:true,
-    qs:["しょうぼうしゃ、どこで みた？","どんな おとが してた？","なんで すきなの？"] },
-  { id:"kuruma", word:"スポーツカー", lead:"くるまの はなし、きかせて", fun:true,
-    qs:["すきな くるま、なに？","どんな いろ？","どこまで のって いきたい？"] },
-  { id:"patoka", word:"パトカー", lead:"パトカーの はなし、きかせて", fun:true,
-    qs:["パトカー、どこで みた？","どんな おとが してた？","なんで すきなの？"] },
-  { id:"hana", word:"おはな", lead:"おはなの はなし、きかせて", fun:true,
-    qs:["すきな おはな、なに？","どこに さいてた？","どんな いろ だった？"] },
-  { id:"okashi", word:"おかし", lead:"おかしの はなし、きかせて", fun:true,
-    qs:["すきな おかし、なに？","だれと たべた？","どんな あじ だった？"] },
-  { id:"nuigurumi", word:"ぬいぐるみ", lead:"ぬいぐるみの はなし、きかせて", fun:true,
-    qs:["すきな ぬいぐるみ、なに？","なまえは あるの？","いつも なにして あそぶ？"] },
-  { id:"ohime", word:"おひめさま", lead:"おひめさまの はなし、きかせて", fun:true,
-    qs:["すきな おひめさま、だれ？","どんな おはなし？","どこが いちばん すき？"] },
-  { id:"uta", word:"うた", lead:"うたの はなし、きかせて", fun:true,
-    qs:["すきな うた、なに？","だれと うたう？","どんなとこが すき？"] },
-  { id:"oekaki", word:"おえかき", lead:"おえかきの はなし、きかせて", fun:true,
-    qs:["なにを かいたの？","どんな いろを つかった？","だれに みせたい？"] }
+  { id:"kyushoku", word:"きゅうしょく", wordR:"給食", lead:{d:"きゅうしょくの おはなし、きかせて。",r:"給食の お話、聞かせて。"},
+    qs:[{d:"きゅうしょくは、なにを たべたの？",r:"給食は、何を 食べたの？"}, {d:"ぜんぶ たべられた？",r:"全部 食べられた？"}, {d:"いちばん おいしかったのは、なに？",r:"一番 美味しかったのは、何？"}] },
+  { id:"soto", word:"そとあそび", wordR:"外遊び", lead:{d:"そとで あそんだんだね。",r:"外で 遊んだんだね。"},
+    qs:[{d:"そとでは、なにを して あそんだの？",r:"外では、何を して 遊んだの？"}, {d:"だれと いっしょに あそんだの？",r:"誰と 一緒に 遊んだの？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}] },
+  { id:"tomodachi", word:"ともだち", wordR:"友達", lead:{d:"ともだちの おはなし、きかせて。",r:"友達の お話、聞かせて。"},
+    qs:[{d:"だれと いっしょに いたの？",r:"誰と 一緒に いたの？"}, {d:"なにを して あそんだの？",r:"何を して 遊んだの？"}, {d:"そのとき、なんて いったの？",r:"その時、何て 言ったの？"}] },
+  { id:"sensei", word:"せんせい", wordR:"先生", lead:{d:"せんせいの おはなし、きかせて。",r:"先生の お話、聞かせて。"},
+    qs:[{d:"せんせいは、なんて いって いたの？",r:"先生は、何て 言って いたの？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}, {d:"きみは、なんて こたえたの？",r:"君は、何て 答えたの？"}] },
+  { id:"benkyou", word:"べんきょう", wordR:"勉強", lead:{d:"べんきょうの おはなし、きかせて。",r:"勉強の お話、聞かせて。"},
+    qs:[{d:"なにを べんきょうしたの？",r:"何を 勉強したの？"}, {d:"むずかしかった？ それとも かんたんだった？",r:"難しかった？ それとも 簡単だった？"}, {d:"できたとき、どう したの？",r:"出来た時、どう したの？"}] },
+  { id:"kaeri", word:"かえりみち", wordR:"帰り道", lead:{d:"かえりみちの おはなし、きかせて。",r:"帰り道の お話、聞かせて。"},
+    qs:[{d:"だれと いっしょに かえったの？",r:"誰と 一緒に 帰ったの？"}, {d:"かえりみちで、なにか あった？",r:"帰り道で、何か あった？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}] },
+  { id:"ouchi", word:"おうち", wordR:"お家", lead:{d:"おうちの おはなし、きかせて。",r:"お家の お話、聞かせて。"},
+    qs:[{d:"おうちでは、なにを して いたの？",r:"お家では、何を して いたの？"}, {d:"だれと いっしょに いたの？",r:"誰と 一緒に いたの？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}] },
+  { id:"gohan", word:"ごはん", wordR:"ご飯", lead:{d:"ごはんの おはなし、きかせて。",r:"ご飯の お話、聞かせて。"},
+    qs:[{d:"なにを たべたの？",r:"何を 食べたの？"}, {d:"だれと いっしょに たべたの？",r:"誰と 一緒に 食べたの？"}, {d:"いちばん おいしかったのは、なに？",r:"一番 美味しかったのは、何？"}] },
+  { id:"yume", word:"ゆめ", wordR:"夢", lead:{d:"ゆめの おはなし、きかせて。",r:"夢の お話、聞かせて。"},
+    qs:[{d:"どんな ゆめを みたの？",r:"どんな 夢を 見たの？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}, {d:"また みたい ゆめ だった？",r:"また 見たい 夢 だった？"}] },
+  { id:"tenki", word:"おてんき", wordR:"お天気", lead:{d:"そとを みて みよう。",r:"外を 見て みよう。"},
+    qs:[{d:"きょうの おてんきは、どう？",r:"今日の お天気は、どう？"}, {d:"きょうは、なにを きて いくの？",r:"今日は、何を 着て 行くの？"}, {d:"そとで、なにか したい？",r:"外で、何か したい？"}] },
+  { id:"tanoshimi", word:"たのしみ", wordR:"楽しみ", lead:{d:"きょうの たのしみ、きかせて。",r:"今日の 楽しみ、聞かせて。"},
+    qs:[{d:"きょう、たのしみな ことは なに？",r:"今日、楽しみな 事は 何？"}, {d:"だれと いっしょに するの？",r:"誰と 一緒に するの？"}, {d:"どんなふうに なったら いいな？",r:"どんな風に なったら いいな？"}] },
+  { id:"ichiban", word:"きょう いちばん", wordR:"今日 一番", lead:{d:"きょうの いちばん、きかせて。",r:"今日の 一番、聞かせて。"},
+    qs:[{d:"きょう いちばん よかった ことは、なに？",r:"今日 一番 良かった 事は、何？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}, {d:"そのとき、なんて いったの？",r:"その時、何て 言ったの？"}] },
+  { id:"ofuro", word:"おふろ", wordR:"お風呂", lead:{d:"おふろの おはなし、きかせて。",r:"お風呂の お話、聞かせて。"},
+    qs:[{d:"おふろで、なにを して いたの？",r:"お風呂で、何を して いたの？"}, {d:"だれと いっしょに はいったの？",r:"誰と 一緒に 入ったの？"}, {d:"なにを はなしたの？",r:"何を 話したの？"}] },
+  { id:"ashita", word:"あした", wordR:"明日", lead:{d:"あしたの おはなし、きかせて。",r:"明日の お話、聞かせて。"},
+    qs:[{d:"あしたは、なにが あるの？",r:"明日は、何が あるの？"}, {d:"たのしみ？ それとも ちょっと いや？",r:"楽しみ？ それとも ちょっと 嫌？"}, {d:"どんなふうに したい？",r:"どんな風に したい？"}] },
+  { id:"hoka", word:"そのほか", wordR:"その他", lead:{d:"きかせて。",r:"聞かせて。"},
+    qs:[{d:"なにが あったの？",r:"何が あったの？"}, {d:"それで、どう なったの？",r:"それで、どう なったの？"}, {d:"そのとき、なんて いったの？",r:"その時、何て 言ったの？"}] },
+  { id:"kyoryu", word:"きょうりゅう", wordR:"恐竜", lead:{d:"きょうりゅうの おはなし、きかせて。",r:"恐竜の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな きょうりゅうは、なに？",r:"好きな 恐竜は、何？"}, {d:"どんな きょうりゅう？ おおきいの？",r:"どんな 恐竜？ 大きいの？"}, {d:"どうして すきなの？",r:"どうして 好きなの？"}] },
+  { id:"mushi", word:"むし", wordR:"虫", lead:{d:"むしの おはなし、きかせて。",r:"虫の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな むしは、なに？",r:"好きな 虫は、何？"}, {d:"どこで みつけたの？",r:"どこで 見つけたの？"}, {d:"どんな かたちを して いたの？",r:"どんな 形を して いたの？"}] },
+  { id:"densha", word:"でんしゃ", wordR:"電車", lead:{d:"でんしゃの おはなし、きかせて。",r:"電車の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな でんしゃは、なに？",r:"好きな 電車は、何？"}, {d:"どこまで のって いって みたい？",r:"どこまで 乗って 行って みたい？"}, {d:"だれと いっしょに のりたい？",r:"誰と 一緒に 乗りたい？"}] },
+  { id:"doubutsu", word:"どうぶつ", wordR:"動物", lead:{d:"どうぶつの おはなし、きかせて。",r:"動物の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな どうぶつは、なに？",r:"好きな 動物は、何？"}, {d:"どんな こえで なくの？",r:"どんな 声で 鳴くの？"}, {d:"あえたら、なにを する？",r:"会えたら、何を する？"}] },
+  { id:"asobi", word:"あそび", wordR:"遊び", lead:{d:"あそびの おはなし、きかせて。",r:"遊びの お話、聞かせて。"}, fun:true,
+    qs:[{d:"どんな あそびが すき？",r:"どんな 遊びが 好き？"}, {d:"だれと いっしょに やるの？",r:"誰と 一緒に やるの？"}, {d:"どこが いちばん たのしいの？",r:"どこが 一番 楽しいの？"}] },
+  { id:"ehon", word:"えほん", wordR:"絵本", lead:{d:"えほんの おはなし、きかせて。",r:"絵本の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな おはなしは、なに？",r:"好きな お話は、何？"}, {d:"どんな おはなしなの？",r:"どんな お話なの？"}, {d:"いちばん すきなのは、どこ？",r:"一番 好きなのは、どこ？"}] },
+  { id:"shoubou", word:"しょうぼうしゃ", wordR:"消防車", lead:{d:"しょうぼうしゃの おはなし、きかせて。",r:"消防車の お話、聞かせて。"}, fun:true,
+    qs:[{d:"しょうぼうしゃは、どこで みたの？",r:"消防車は、どこで 見たの？"}, {d:"どんな おとが して いた？",r:"どんな 音が して いた？"}, {d:"どうして すきなの？",r:"どうして 好きなの？"}] },
+  { id:"kuruma", word:"スポーツカー", wordR:"スポーツカー", lead:{d:"くるまの おはなし、きかせて。",r:"車の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな くるまは、なに？",r:"好きな 車は、何？"}, {d:"どんな いろを して いるの？",r:"どんな 色を して いるの？"}, {d:"どこまで のって いって みたい？",r:"どこまで 乗って 行って みたい？"}] },
+  { id:"patoka", word:"パトカー", wordR:"パトカー", lead:{d:"パトカーの おはなし、きかせて。",r:"パトカーの お話、聞かせて。"}, fun:true,
+    qs:[{d:"パトカーは、どこで みたの？",r:"パトカーは、どこで 見たの？"}, {d:"どんな おとが して いた？",r:"どんな 音が して いた？"}, {d:"どうして すきなの？",r:"どうして 好きなの？"}] },
+  { id:"hana", word:"おはな", wordR:"お花", lead:{d:"おはなの おはなし、きかせて。",r:"お花の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな おはなは、なに？",r:"好きな お花は、何？"}, {d:"どこに さいて いたの？",r:"どこに 咲いて いたの？"}, {d:"どんな いろを して いたの？",r:"どんな 色を して いたの？"}] },
+  { id:"okashi", word:"おかし", wordR:"お菓子", lead:{d:"おかしの おはなし、きかせて。",r:"お菓子の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな おかしは、なに？",r:"好きな お菓子は、何？"}, {d:"だれと いっしょに たべたの？",r:"誰と 一緒に 食べたの？"}, {d:"どんな あじが したの？",r:"どんな 味が したの？"}] },
+  { id:"nuigurumi", word:"ぬいぐるみ", wordR:"ぬいぐるみ", lead:{d:"ぬいぐるみの おはなし、きかせて。",r:"ぬいぐるみの お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな ぬいぐるみは、なに？",r:"好きな ぬいぐるみは、何？"}, {d:"なまえは あるの？",r:"名前は あるの？"}, {d:"いつも なにを して あそぶの？",r:"いつも 何を して 遊ぶの？"}] },
+  { id:"ohime", word:"おひめさま", wordR:"お姫様", lead:{d:"おひめさまの おはなし、きかせて。",r:"お姫様の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな おひめさまは、だれ？",r:"好きな お姫様は、誰？"}, {d:"どんな おはなしなの？",r:"どんな お話なの？"}, {d:"どこが いちばん すきなの？",r:"どこが 一番 好きなの？"}] },
+  { id:"uta", word:"うた", wordR:"歌", lead:{d:"うたの おはなし、きかせて。",r:"歌の お話、聞かせて。"}, fun:true,
+    qs:[{d:"すきな うたは、なに？",r:"好きな 歌は、何？"}, {d:"だれと いっしょに うたうの？",r:"誰と 一緒に 歌うの？"}, {d:"どんな ところが すきなの？",r:"どんな 所が 好きなの？"}] },
+  { id:"oekaki", word:"おえかき", wordR:"お絵描き", lead:{d:"おえかきの おはなし、きかせて。",r:"お絵描きの お話、聞かせて。"}, fun:true,
+    qs:[{d:"なにを かいたの？",r:"何を 描いたの？"}, {d:"どんな いろを つかったの？",r:"どんな 色を 使ったの？"}, {d:"だれに みせたいの？",r:"誰に 見せたいの？"}] }
 ];
 // のりもの と すきなもの。男の子むけ／女の子むけには分けない。
 // 分けると、その子の「すき」がかえって見えなくなる。かわりに数をふやす。
@@ -644,19 +640,21 @@ const RIDE_IDS = ["densha","shoubou","kuruma","patoka"];
 const FUN_IDS  = ["kyoryu","mushi","doubutsu","hana","okashi","nuigurumi",
                   "ohime","uta","oekaki","ehon","asobi"];
 const TOPIC = {}; TOPICS.forEach(t => TOPIC[t.id] = t);
-const NODS = ["そっか。","うんうん。","ちゃんと きいてるよ。","はなして くれて ありがとう。"];
+const NODS = [{d:"そっか。",r:"そっか。"},{d:"うんうん。",r:"うんうん。"},
+  {d:"ちゃんと きいて いるよ。",r:"ちゃんと 聞いて いるよ。"},
+  {d:"はなして くれて ありがとう。",r:"話して くれて ありがとう。"}];
 
 /* ═══ 時間で あいさつと 話題が かわる ═════════════════════════════
    おはよう・こんにちは・おかえり・こんばんは。そのあとに続く言葉は時間でだいたい決まる。
    朝に「かえりみち」を聞かない。夜に「きょうの たのしみ」を聞かない。 */
 const BANDS = {
-  asa:    { hello:"おはよう",    sub:"きょうが はじまるね",
+  asa:    { hello:"おはよう",   subD:"きょうが はじまるね",   subR:"今日が 始まるね",
             topics:["gohan","tenki","yume","tanoshimi","hoka"] },
-  hiru:   { hello:"こんにちは",  sub:"いま、どんな かんじ？",
+  hiru:   { hello:"こんにちは", subD:"いま、どんな かんじ？", subR:"今、どんな 感じ？",
             topics:["kyushoku","soto","benkyou","tomodachi","sensei","hoka"] },
-  yugata: { hello:"おかえり",    sub:"きょうは どうだった？",
+  yugata: { hello:"おかえり",   subD:"きょうは どうだった？", subR:"今日は どうだった？",
             topics:["kyushoku","soto","tomodachi","sensei","benkyou","kaeri","ouchi","hoka"] },
-  yoru:   { hello:"こんばんは",  sub:"きょうも おつかれさま",
+  yoru:   { hello:"こんばんは", subD:"きょうも おつかれさま", subR:"今日も お疲れさま",
             topics:["ichiban","gohan","ofuro","ouchi","ashita","hoka"] }
 };
 function band(){
@@ -727,25 +725,46 @@ const LS = {
 
 /* ═══ 3. よみあげ ═════════════════════════════════════════════════ */
 let voiceOn = LS.get("voice", true);
+// d＝がめんに だす ことば（ひらがな）／r＝よみあげに わたす ことば（かんじ かな まじり）。
+// ひらがなだけ わたすと、よみあげが くぎりを まちがえる（「給食」が「きゅうし・よく」になる）。
+function D(x){ return (x && typeof x === "object") ? x.d : x; }
+function R(x){ return (x && typeof x === "object") ? (x.r || x.d) : x; }
 function say(text){ sayThen(text, null); }
+let jaVoice = null;
+function pickVoice(){                      // できるだけ よい 日本語の こえを えらぶ
+  try{
+    const vs = speechSynthesis.getVoices().filter(v => /^ja/i.test(v.lang || ""));
+    if (!vs.length) return null;
+    const rank = (v) => {
+      const n = (v.name || "").toLowerCase();
+      if (/compact|eloquence/.test(n)) return 9;
+      if (/kyoko|o-ren|otoya|hattori/.test(n)) return 0;
+      if (/google/.test(n)) return 1;
+      return 5;
+    };
+    return vs.slice().sort((a,b)=>rank(a)-rank(b))[0];
+  }catch(e){ return null; }
+}
 // 読み上げが終わってから次へ。終わりを待たずに録音を始めると、こえトリの声まで録ってしまう。
 function sayThen(text, cb){
-  if (!text){ if (cb) setTimeout(cb, 60); return; }
+  const line = R(text);
+  if (!line){ if (cb) setTimeout(cb, 60); return; }
   if (!voiceOn || !("speechSynthesis" in window)){ if (cb) setTimeout(cb, 500); return; }
   let done = false;
   const fin = () => { if (!done){ done = true; if (cb) cb(); } };
   try{
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP"; u.rate = 0.9; u.pitch = 1.05;
-    const jv = speechSynthesis.getVoices().find(v=>/ja/i.test(v.lang));
-    if (jv) u.voice = jv;
+    const u = new SpeechSynthesisUtterance(line);
+    u.lang = "ja-JP"; u.rate = 0.92; u.pitch = 1.04;
+    if (!jaVoice) jaVoice = pickVoice();
+    if (jaVoice) u.voice = jaVoice;
     u.onend = fin; u.onerror = fin;
     speechSynthesis.speak(u);
-    if (cb) setTimeout(fin, 1600 + text.length * 240);   // 読み上げが黙り込んだときの保険
+    if (cb) setTimeout(fin, 1600 + line.length * 260);   // 読み上げが黙り込んだときの保険
   }catch(e){ if (cb) setTimeout(fin, 500); }
 }
-try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = ()=>{}; }catch(e){}
+try{ speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = ()=>{ jaVoice = pickVoice(); }; }catch(e){}
 
 /* ═══ 4. こえトリ ═════════════════════════════════════════════════ */
 const B_FEET = '<path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>';
@@ -1072,7 +1091,7 @@ function go(name){
   if (name==="feel")   { renderFeel(); }
   if (name==="give")   { renderGive(); }
   if (name==="box")    { renderBox(); }
-  if (name==="help")   { renderHelp(); say("こまったときは、この ひとに いえるよ"); }
+  if (name==="help")   { renderHelp(); say("困った ときは、この 人に 言えるよ"); }
   if (name==="parent") { renderParent(); }
 }
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ()=>go(b.dataset.go)));
@@ -1097,7 +1116,7 @@ function resetMicScreen(){
 }
 async function getMic(){
   $("#micDenied").hidden = true; $("#micWaiting").hidden = false; $("#askMic").hidden = true;
-  say("うえの まどで、きょかを おしてね");
+  say("上の 窓で、許可を 押してね");
   try{
     stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true } });
     $("#micWaiting").hidden = true;
@@ -1199,7 +1218,15 @@ const AI_SYSTEM = [
 "・もじに できなかったと かいてあるときは、はなしている ことについて、",
 "　こたえやすい ぐたいてきな ことを きく",
 "・つらそうな ことを はなしていたら、せめずに、やさしく つづきを きく",
-"・しつもんの 文だけを かく。ほかの ことばは かかない"
+"・しつもんの 文だけを かく。ほかの ことばは かかない",
+"",
+"こたえかたは、かならず この 2ぎょう だけ：",
+"ひょうじ：（ぜんぶ ひらがなと カタカナ。かんじは つかわない）",
+"よみあげ：（おなじ ないようを、かんじ かな まじりで。よみあげ そうちが ただしく よめるように）",
+"",
+"れい",
+"ひょうじ：きょうりゅうは、どんな こえで なくの？",
+"よみあげ：恐竜は、どんな 声で 鳴くの？"
 ].join("\n");
 
 let aiLastError = "";
@@ -1237,20 +1264,30 @@ async function aiAsk(text, ms){
 }
 // へんな出力は つかわない。だめなら 台本の しつもんに もどす。
 function cleanQ(s){
-  if (!s) return "";
-  let q = (s.split("\n").map(x=>x.trim()).filter(Boolean)[0]) || "";
-  q = q.replace(/^[「『"'‘“\-・\s]+/, "").replace(/[」』"'’”]+$/, "").trim();
-  if (q.length < 3 || q.length > 40) return "";
-  if (/[A-Za-z]{4,}/.test(q)) return "";
-  if (!/[？?]$/.test(q)) q += "？";
-  return q;
+  if (!s) return null;
+  const QUOTES = /^[\u300c\u300e"'\u2018\u201c\-\u30fb\s]+|[\u300d\u300f"'\u2019\u201d]+$/g;
+  const strip = (x) => (x || "").replace(QUOTES, "").trim();
+  const lines = s.split("\n").map(x=>x.trim()).filter(Boolean);
+  let d = "", r = "";
+  lines.forEach(L => {
+    const m = L.match(/^(\u3072\u3087\u3046\u3058|\u8868\u793a)[\uff1a:](.*)$/);
+    const n = L.match(/^(\u3088\u307f\u3042\u3052|\u8aad\u307f\u4e0a\u3052)[\uff1a:](.*)$/);
+    if (m) d = strip(m[2]); else if (n) r = strip(n[2]);
+  });
+  if (!d) d = strip(lines[0] || "");
+  if (!r) r = d;
+  if (d.length < 3 || d.length > 40 || r.length > 60) return null;
+  if (/[A-Za-z]{4,}/.test(d)) return null;
+  if (!/[\uff1f?]$/.test(d)) d += "\uff1f";
+  if (!/[\uff1f?]$/.test(r)) r += "\uff1f";
+  return { d: d, r: r };
 }
 // AIに わたす のは ここまでの やりとりだけ。声そのものは ぜったいに わたさない。
 function convoFor(){
   const t = TOPIC[(sess && sess.topic) || "hoka"] || TOPIC.hoka;
   let s = "はなしている こと：" + t.word + "\n";
   (sess.turns||[]).forEach(tn => {
-    s += "\nこえトリ：" + tn.q + "\nこども："
+    s += "\nこえトリ：" + D(tn.q) + "\nこども："
       + (tn.transcriptOk ? tn.transcript
          : "（もじに できなかった。" + Math.max(1, Math.round(tn.ms/1000)) + "びょう はなした）") + "\n";
   });
@@ -1287,7 +1324,7 @@ function renderPick(){
   $("#topicsFun").innerHTML  = cards(FUN_IDS);            // すきな話は いつでも
   document.querySelectorAll("#s-pick .topic").forEach(b =>
     b.addEventListener("click", () => chooseTopic(b.dataset.t)));
-  say("なにを はなす？ はなしたい えを えらんでね");
+  say("何を 話す？ 話したい 絵を 選んでね");
 }
 function chooseTopic(id){
   sess.topic = id;
@@ -1295,7 +1332,7 @@ function chooseTopic(id){
   sess.steps = t.qs.map(q => ({ q:q, fromParent:false }));
   const pq = parentQuestion();
   if (pq){                                   // おうちのひとの しつもんは さいごに あずかって きく
-    sess.steps.push({ q:pq, fromParent:true });
+    sess.steps.push({ q:{d:pq, r:pq}, fromParent:true });
     LS.set("pqDay", todayKey());
   }
   stepIdx = 0;
@@ -1314,10 +1351,10 @@ function renderSteps(){
 
 // 質問を読み上げてから、自動で聞きはじめる
 async function runTalkStep(){
-  const st = steps()[Math.min(stepIdx, steps().length-1)] || { q:"きかせて" };
+  const st = steps()[Math.min(stepIdx, steps().length-1)] || { q:{d:"きかせて",r:"聞かせて"} };
   let q = st.q;
   fromParent = !!st.fromParent;
-  $("#qText").textContent = q;
+  $("#qText").textContent = D(q);
   $("#talkArt").innerHTML = bird("wave","bob");
   renderSteps();
   $("#qEnd").hidden  = sess.turns.length === 0;
@@ -1330,20 +1367,20 @@ async function runTalkStep(){
     setTalkState("thinking");
     const got = cleanQ(await aiAsk(convoFor(), 6000));
     if (at !== "talk") return;
-    if (got){ q = got; sess.aiUsed = true; }
+    if (got && got.d){ q = got; sess.aiUsed = true; }
   }
   if (at !== "talk") return;
   currentQ = q;
-  $("#qText").textContent = currentQ;
+  $("#qText").textContent = D(currentQ);
   setTalkState("speaking");
   let lead = "";
   if (stepIdx === 0){
-    if (mode()==="all") lead += "はなすことは ぜんぶ おうちのひとに とどきます。";
+    if (mode()==="all") lead += "今 話す ことは 全部 お家の人に 届きます。";
     const t = TOPIC[sess.topic];
-    if (t) lead += t.word + "。" + t.lead + "。";   // えらんだ絵の名前を読み上げる＝言葉をおぼえる
+    if (t) lead += t.wordR + "。" + R(t.lead);     // えらんだ絵の名前を読む＝言葉をおぼえる
   }
-  if (fromParent) lead = "おうちのひとが、こう きいてるよ。";
-  sayThen(lead + currentQ, () => { if (at === "talk") beginRecording(); });
+  if (fromParent) lead = "お家の人が、こう 聞いて いるよ。";
+  sayThen(lead + R(currentQ), () => { if (at === "talk") beginRecording(); });
 }
 function setTalkState(s){
   const speaking = s === "speaking", listening = s === "listening", thinking = s === "thinking";
@@ -1385,17 +1422,18 @@ function abortRecording(){       // 画面を離れたときは保存しない
 async function onRecorded(){
   const ms = Date.now() - recStart;
   if (quietSkip){
-    showAck("うん。むりに はなさなくて いいよ。", "calm", advance, false);
+    showAck({d:"うん。むりに はなさなくて いいよ。",r:"うん。無理に 話さなくて いいよ。"}, "calm", advance, false);
     return;
   }
   const type = (recorder && recorder.mimeType) || (chunks[0] && chunks[0].type) || "audio/webm";
   const blob = chunks.length ? new Blob(chunks, { type }) : null;
-  sess.turns.push({ q: currentQ, blob, mime:type, ms, fromParent: fromParent,
+  sess.turns.push({ q: D(currentQ), blob, mime:type, ms, fromParent: fromParent,
                     transcript: transcript.trim(), transcriptOk: recogWorked && !!transcript.trim() });
   await put(sess);                     // 話した時点で必ずのこす。渡すかどうかは別の話。
   // おうちのひとの しつもんに こたえたときは、第三者としての立ち位置をはっきり言う
   const nod = fromParent
-    ? "おしえて くれて ありがとう。つたえるかは、あとで きめていいよ。"
+    ? {d:"おしえて くれて ありがとう。つたえるかは、あとで きめて いいよ。",
+       r:"教えて くれて ありがとう。伝えるかは、後で 決めて いいよ。"}
     : NODS[Math.floor(Math.random()*NODS.length)];
   showAck(nod, "happy", advance, true);
 }
@@ -1408,7 +1446,7 @@ function advance(){
 /* うなずき。自動で次へ行く。押さなくていい。 */
 let ackGo = null, ackTimer = null;
 function showAck(text, face, next, offerMore){
-  $("#ackText").textContent = text;
+  $("#ackText").textContent = D(text);
   $("#ackArt").innerHTML = bird(face, "nod");
   $("#ackMore").hidden = !offerMore;
   ackGo = next;
@@ -1428,12 +1466,13 @@ $("#ackMore").addEventListener("click", ()=>{      // まだ言い足りない�
 $("#qStop").addEventListener("click", ()=>endRecording());
 $("#qSkip").addEventListener("click", ()=>{
   abortRecording();
-  showAck("いいよ。いわなくて だいじょうぶ。", "calm", advance, false);
+  showAck({d:"いいよ。いわなくて だいじょうぶ。",r:"いいよ。言わなくて 大丈夫。"}, "calm", advance, false);
 });
 $("#qEnd").addEventListener("click", ()=>{ abortRecording(); go("feel"); });
 $("#qQuit").addEventListener("click", ()=>{
   abortRecording();
-  showAck("いいよ。きょうは いわなくて だいじょうぶ。あした また きくね。", "sleep", ()=>go("home"), false);
+  showAck({d:"いいよ。きょうは いわなくて だいじょうぶ。あした また きくね。",
+           r:"いいよ。今日は 言わなくて 大丈夫。明日 また 聞くね。"}, "sleep", ()=>go("home"), false);
 });
 
 function renderFeel(){
@@ -1443,7 +1482,7 @@ function renderFeel(){
     '<button class="feel" data-f="'+f.id+'">'+head(f.face)+'<span>'+f.label+'</span></button>').join("");
   $("#feels").querySelectorAll(".feel").forEach(b =>
     b.addEventListener("click", () => chooseFeel(b.dataset.f)));
-  say("きょうの こえトリは どの かお？");
+  say("今日の こえトリは、どの 顔？");
 }
 async function chooseFeel(id){
   sess.feeling = id;
@@ -1492,14 +1531,14 @@ function stepSeq(){
 function mode(){ return LS.get("pmode","child"); }
 function homeSpeech(){
   const b = bandInfo();
-  return (mode()==="all" ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "")
-    + b.hello + "。" + b.sub;
+  return (mode()==="all" ? "今 話す ことは 全部 お家の人に 届きます。" : "")
+    + b.hello + "。" + b.subR;
 }
 function renderHome(){
   const b = bandInfo();
   $("#homeArt").innerHTML = bird(band()==="yoru" ? "sleep" : "wave", "bob");
   $("#helloText").textContent = b.hello;
-  $("#helloSub").textContent = b.sub;
+  $("#helloSub").textContent = b.subD;
   const a = mode()==="all";
   $("#modeNote").hidden = !a;
   $("#modeNote").textContent = a ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "";
@@ -1575,14 +1614,14 @@ function renderGive(){
     host.appendChild(p);
   }
   $("#giveText").hidden = !sess.turns.some(t=>t.transcriptOk);
-  sayThen("おうちのひとに とどける？ とどけるか どうかは、じぶんで きめていいよ", null);
+  sayThen("お家の人に 届ける？ 届けるか どうかは、自分で 決めて いいよ", null);
 }
 async function renderBox(){
   const rs = await all();
   const host = $("#boxList"); host.innerHTML = "";
   if (!rs.length){
     host.innerHTML = '<div class="card" style="text-align:center"><p style="margin:0">まだ なにも ないよ。<br>「おはなしする」から はじめよう。</p></div>';
-    say("ことばの たからばこ"); return;
+    say("言葉の 宝箱"); return;
   }
   let lastDay = "";
   rs.forEach(s => {
@@ -1598,13 +1637,13 @@ async function renderBox(){
       later.textContent = "🎁 いまから とどける";
       later.addEventListener("click", async ()=>{
         s.handed = "voice"; s.handedAt = Date.now(); await put(s);
-        say("とどけたよ"); renderBox();
+        say("届けたよ"); renderBox();
       });
       card.appendChild(later);
     }
     host.appendChild(card);
   });
-  say("ことばの たからばこ");
+  say("言葉の 宝箱");
 }
 function jpDay(key){
   const [y,m,d] = key.split("-").map(Number);
@@ -1676,11 +1715,14 @@ async function renderParent(){
 }
 
 /* ═══ 10. とどける ════════════════════════════════════════════════ */
-$("#giveVoice").addEventListener("click", ()=>finish("voice","とどけたよ","こえが、おうちのひとに とどいたよ。"));
-$("#giveText").addEventListener("click", ()=>finish("text","とどけたよ","もじだけ とどいたよ。こえは たからばこに のこるよ。"));
-$("#giveNo").addEventListener("click", ()=>finish("no","たからばこに いれたよ","あとで とどけたくなったら、たからばこから とどけられるよ。"));
+$("#giveVoice").addEventListener("click", ()=>finish("voice","とどけたよ",
+  "こえが、おうちのひとに とどいたよ。","声が、お家の人に 届いたよ。"));
+$("#giveText").addEventListener("click", ()=>finish("text","とどけたよ",
+  "もじだけ とどいたよ。こえは たからばこに のこるよ。","文字だけ 届いたよ。声は 宝箱に 残るよ。"));
+$("#giveNo").addEventListener("click", ()=>finish("no","たからばこに いれたよ",
+  "あとで とどけたくなったら、たからばこから とどけられるよ。","後で 届けたく なったら、宝箱から 届けられるよ。"));
 
-async function finish(kind, head_, sub){
+async function finish(kind, head_, sub, subR){
   stopPlay();
   if (sess){
     sess.handed = kind;
@@ -1696,7 +1738,7 @@ async function finish(kind, head_, sub){
   $("#doneHelpName").textContent = nm || "—";
   $("#doneHelpTel").textContent = tl || "—";
   go("done");
-  say(head_ + "。" + sub + (tough && nm ? " こまったときは、" + nm + " に いえるよ。" : ""));
+  say(head_ + "。" + (subR || sub) + (tough && nm ? " 困った ときは、" + nm + " に 言えるよ。" : ""));
 }
 function setDoneArt(kind){
   $("#artGive").hidden  = kind !== "give";
@@ -1712,7 +1754,7 @@ $("#btnVoice").addEventListener("click", () => {
   $("#btnVoice").classList.toggle("on", voiceOn);
   $("#btnVoice").setAttribute("aria-pressed", String(voiceOn));
   $("#btnVoice").textContent = (voiceOn?"🔈":"🔇")+" よみあげ";
-  if (voiceOn) say("よみあげを つけたよ"); else { try{ speechSynthesis.cancel(); }catch(e){} }
+  if (voiceOn) say("読み上げを つけたよ"); else { try{ speechSynthesis.cancel(); }catch(e){} }
 });
 (function(){
   const btn = $("#btnParent"); btn.classList.add("hold");
@@ -1755,8 +1797,9 @@ $("#testAi").addEventListener("click", async ()=>{
   const raw = await aiAsk("はなしている こと：きょうりゅう\n\nこえトリ：すきな きょうりゅう、なに？\nこども：ティラノサウルス。つよいから。\n\nつぎの しつもんを ひとつだけ。", 15000);
   const ms = Date.now() - t0;
   const q = cleanQ(raw);
-  st.textContent = q
-    ? ("つながりました（" + (ms/1000).toFixed(1) + "びょう）。AIが作った質問：「" + q + "」")
+  st.textContent = (q && q.d)
+    ? ("つながりました（" + (ms/1000).toFixed(1) + "びょう）。AIが作った質問：「" + q.d
+       + "」／読み上げ：「" + q.r + "」")
     : ("つながりませんでした。" + (aiLastError || "りゆうは わかりません") + (raw ? " 返答：" + raw.slice(0,60) : ""));
 });
 $("#savePq").addEventListener("click", ()=>{

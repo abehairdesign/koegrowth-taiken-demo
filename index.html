@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>声のバトン</title>
-<meta name="description" content="子どもの声を、要約せずにそのまま家族へ渡すアプリ">
+<meta name="description" content="子どもの話を3〜4往復で聞き、受け止めて、声のまま家族へ渡すアプリ">
 <meta name="theme-color" content="#fbf7f0" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#13161f" media="(prefers-color-scheme: dark)">
 <meta name="mobile-web-app-capable" content="yes">
@@ -18,21 +18,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <style>
-/* 声のバトン ── 1画面 = 1つのやること。子どもの動線は縦1列、親の画面だけ情報密度を上げる */
+/* 声のバトン ── 1画面=1つのやること。子どもの動線は縦1列。親の画面だけ情報密度を上げる */
 :root{
-  --ink:#141b2e;          /* 文字 */
-  --ground:#fbf7f0;       /* 地 */
-  --panel:#ffffff;        /* 面 */
-  --line:#ddd4c6;         /* 罫 */
-  --baton:#e8622a;        /* バトン色＝主要アクション */
-  --baton-deep:#b8451a;
-  --calm:#2f6f6b;         /* 落ち着き＝きく・たからばこ */
-  --soft:#6d6558;         /* 補助文字 */
-  --warn:#8a5a00;
-  --bird:#ffd36b;         /* こえトリ */
-  --belly:#fff4dd;
-  --house:#5f9e94;
-  --chest:#c98a3c;
+  --ink:#141b2e; --ground:#fbf7f0; --panel:#ffffff; --line:#ddd4c6;
+  --baton:#e8622a; --baton-deep:#b8451a; --calm:#2f6f6b; --soft:#6d6558; --warn:#8a5a00;
+  --bird:#ffd36b; --belly:#fff4dd; --house:#5f9e94; --chest:#c98a3c; --tear:#5b84c4;
+  --f-tanoshii:#e09317; --f-futsuu:#7b8794; --f-kanashii:#4f78b8;
+  --f-okotta:#cc4d33; --f-gaman:#7d5fab; --f-wakaranai:#5d8470;
   --font-display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
   --font-body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
   color-scheme:light;
@@ -41,101 +33,86 @@
   :root:not([data-theme="light"]){
     --ink:#f4efe6; --ground:#13161f; --panel:#1d222f; --line:#333a4c;
     --baton:#ff7a45; --baton-deep:#ff9a70; --calm:#6cc3bb; --soft:#a9a29a; --warn:#e0b054;
-    --bird:#f7c356; --belly:#fdeac4; --house:#4f8f86; --chest:#d29948;
+    --bird:#f7c356; --belly:#fdeac4; --house:#4f8f86; --chest:#d29948; --tear:#7aa6e6;
+    --f-tanoshii:#f0ab3c; --f-futsuu:#9aa5b1; --f-kanashii:#7aa2e0;
+    --f-okotta:#e8705a; --f-gaman:#a688d4; --f-wakaranai:#7fae97;
     color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
   --ink:#f4efe6; --ground:#13161f; --panel:#1d222f; --line:#333a4c;
   --baton:#ff7a45; --baton-deep:#ff9a70; --calm:#6cc3bb; --soft:#a9a29a; --warn:#e0b054;
-  --bird:#f7c356; --belly:#fdeac4; --house:#4f8f86; --chest:#d29948;
+  --bird:#f7c356; --belly:#fdeac4; --house:#4f8f86; --chest:#d29948; --tear:#7aa6e6;
+  --f-tanoshii:#f0ab3c; --f-futsuu:#9aa5b1; --f-kanashii:#7aa2e0;
+  --f-okotta:#e8705a; --f-gaman:#a688d4; --f-wakaranai:#7fae97;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{
-  margin:0; background:var(--ground); color:var(--ink);
-  font-family:var(--font-body); font-size:17px; line-height:1.7;
-  -webkit-text-size-adjust:100%;
-}
-#app{
-  min-height:100%; display:flex; flex-direction:column;
-  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);
-  max-width:560px; margin:0 auto;
-}
-.screen{display:none; flex:1; flex-direction:column; gap:18px}
+body{margin:0; background:var(--ground); color:var(--ink);
+  font-family:var(--font-body); font-size:17px; line-height:1.7; -webkit-text-size-adjust:100%}
+#app{min-height:100%; display:flex; flex-direction:column; max-width:560px; margin:0 auto;
+  padding:calc(env(safe-area-inset-top,0px) + 12px) 16px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.screen{display:none; flex:1; flex-direction:column; gap:16px}
 .screen.on{display:flex}
 
-/* 見出し */
 h1,h2{font-family:var(--font-display); text-wrap:balance; margin:0; line-height:1.4}
-h1{font-size:26px; font-weight:900; letter-spacing:.02em}
-h2{font-size:23px; font-weight:700}
-.big{font-size:27px; font-weight:700; font-family:var(--font-display); text-wrap:balance}
+h1{font-size:25px; font-weight:900}
+h2{font-size:22px; font-weight:700}
+.big{font-size:26px; font-weight:700; font-family:var(--font-display); text-wrap:balance}
 .sub{color:var(--soft); font-size:15px; margin:0}
+.center{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:16px; flex:1}
+.stack{display:flex; flex-direction:column; gap:12px}
+.row{display:flex; gap:8px; flex-wrap:wrap}
+.grow{flex:1}
 
-/* 上のバー */
-.topbar{display:flex; align-items:center; gap:10px; min-height:40px}
-.brand{font-family:var(--font-display); font-weight:900; font-size:18px; letter-spacing:.04em; white-space:nowrap}
+.topbar{display:flex; align-items:center; gap:8px; min-height:40px}
+.brand{font-family:var(--font-display); font-weight:900; font-size:18px; white-space:nowrap}
 .brand span{color:var(--baton)}
 .spacer{flex:1}
 
-/* ボタン */
 button{font-family:inherit; font-size:inherit; cursor:pointer; border:none; background:none; color:inherit}
 button:focus-visible{outline:3px solid var(--baton); outline-offset:3px}
-.act{
-  display:flex; align-items:center; justify-content:center; gap:14px;
-  width:100%; min-height:104px; padding:18px 20px; border-radius:26px;
-  background:var(--baton); color:#fff; font-family:var(--font-display);
-  font-weight:700; font-size:26px; letter-spacing:.02em;
-  box-shadow:0 6px 0 var(--baton-deep); transition:transform .08s, box-shadow .08s;
-}
+.act{display:flex; align-items:center; justify-content:center; gap:12px; width:100%;
+  min-height:98px; padding:16px 18px; border-radius:24px; background:var(--baton); color:#fff;
+  font-family:var(--font-display); font-weight:700; font-size:25px;
+  box-shadow:0 6px 0 var(--baton-deep); transition:transform .08s, box-shadow .08s}
 .act:active{transform:translateY(4px); box-shadow:0 2px 0 var(--baton-deep)}
-.act .ico{font-size:34px; line-height:1}
+.act .ico{font-size:32px; line-height:1}
 .act.calm{background:var(--calm); box-shadow:0 6px 0 #1f4f4c}
 .act.calm:active{box-shadow:0 2px 0 #1f4f4c}
-.act.quiet{
-  background:var(--panel); color:var(--ink); border:2px solid var(--line);
-  box-shadow:0 4px 0 var(--line); font-size:21px; min-height:78px;
-}
+.act.quiet{background:var(--panel); color:var(--ink); border:2px solid var(--line);
+  box-shadow:0 4px 0 var(--line); font-size:20px; min-height:72px}
 .act.quiet:active{box-shadow:0 1px 0 var(--line)}
-.mini{
-  border:2px solid var(--line); background:var(--panel); color:var(--ink);
-  border-radius:999px; padding:8px 14px; font-size:14px; font-weight:500;
-  display:inline-flex; align-items:center; gap:6px; white-space:nowrap; flex:0 0 auto;
-}
-.topbar .mini{font-size:13px; padding:7px 12px}
+.mini{border:2px solid var(--line); background:var(--panel); color:var(--ink); border-radius:999px;
+  padding:8px 14px; font-size:14px; font-weight:500; display:inline-flex; align-items:center;
+  gap:6px; white-space:nowrap; flex:0 0 auto}
 .mini.on{border-color:var(--baton); color:var(--baton)}
-.row{display:flex; gap:10px; flex-wrap:wrap}
-.stack{display:flex; flex-direction:column; gap:12px}
-.grow{flex:1}
-.center{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:18px; flex:1}
+.topbar .mini{font-size:13px; padding:7px 12px}
 
-/* 面 */
-.card{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:18px}
-.q{
-  background:var(--panel); border:2px dashed var(--line); border-radius:22px;
-  padding:22px 20px; text-align:center;
-}
-.q .qtext{font-family:var(--font-display); font-size:25px; font-weight:700; line-height:1.5; text-wrap:balance}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:16px}
+.q{background:var(--panel); border:2px dashed var(--line); border-radius:22px; padding:20px 18px; text-align:center}
+.q .qtext{font-family:var(--font-display); font-size:24px; font-weight:700; line-height:1.5; text-wrap:balance}
+
+/* すすみ具合（何回目の往復か） */
+.steps{display:flex; gap:7px; justify-content:center; align-items:center}
+.steps i{width:11px; height:11px; border-radius:50%; background:var(--line)}
+.steps i.now{background:var(--baton); transform:scale(1.35)}
+.steps i.past{background:var(--calm)}
 
 /* え（こえトリ） */
-.art{width:min(210px,52vw); height:auto; display:block; margin:0 auto; overflow:visible}
-.art.sm{width:min(140px,34vw)}
+.art{width:min(190px,46vw); height:auto; display:block; margin:0 auto; overflow:visible}
+.art.sm{width:min(130px,32vw)}
 .art .s *{stroke:var(--ink); stroke-width:3.4; stroke-linecap:round; stroke-linejoin:round}
 .art .ln{fill:none}
-.art .bd{fill:var(--bird)}
-.art .bl{fill:var(--belly)}
-.art .bk{fill:var(--baton)}
-.art .hs{fill:var(--house)}
-.art .ch{fill:var(--chest)}
-.art .pn{fill:var(--panel)}
+.art .bd{fill:var(--bird)} .art .bl{fill:var(--belly)} .art .bk{fill:var(--baton)}
+.art .hs{fill:var(--house)} .art .ch{fill:var(--chest)} .art .pn{fill:var(--panel)}
 .art .eye,.art .gl,.art .ck{stroke:none}
-.art .eye{fill:var(--ink)}
-.art .gl{fill:#fff}
-.art .ck{fill:var(--baton); opacity:.3}
+.art .eye{fill:var(--ink)} .art .gl{fill:#fff} .art .ck{fill:var(--baton); opacity:.3}
+.art .tear{fill:var(--tear)}
 .art .qm{stroke:none; fill:var(--ink); font-family:var(--font-display); font-weight:900; font-size:30px; text-anchor:middle}
 .art .st{fill:var(--baton)}
-.bob{animation:bobY 2.6s ease-in-out infinite; transform-origin:60px 100px}
+.bob{animation:bobY 2.6s ease-in-out infinite}
 @keyframes bobY{0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)}}
 .wig{animation:wig 1.5s ease-in-out infinite; transform-box:fill-box; transform-origin:80% 10%}
 @keyframes wig{0%,100%{transform:rotate(-4deg)} 50%{transform:rotate(-30deg)}}
@@ -146,72 +123,82 @@ button:focus-visible{outline:3px solid var(--baton); outline-offset:3px}
 @keyframes runX{0%{transform:translateX(-8px)} 100%{transform:translateX(12px)}}
 .spark{animation:sp 1.8s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
 .spark.d2{animation-delay:.6s} .spark.d3{animation-delay:1.2s}
-@keyframes sp{0%,100%{opacity:.2;transform:scale(.8)} 50%{opacity:1;transform:scale(1.15)}}
-@media (prefers-reduced-motion:reduce){
-  .bob,.wig,.wave,.run,.spark{animation:none}
-}
+@keyframes sp{0%,100%{opacity:.25;transform:scale(.8)} 50%{opacity:1;transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){ .bob,.wig,.wave,.run,.spark{animation:none} }
 
 /* 録音 */
-.pulse{
-  width:170px; height:170px; border-radius:50%; background:var(--baton);
-  display:flex; align-items:center; justify-content:center; color:#fff;
-  font-size:64px; position:relative;
-}
-.pulse::after{
-  content:""; position:absolute; inset:-14px; border-radius:50%;
-  border:4px solid var(--baton); opacity:.45; animation:ring 1.4s ease-out infinite;
-}
-@keyframes ring{0%{transform:scale(.88);opacity:.55} 100%{transform:scale(1.18);opacity:0}}
-@media (prefers-reduced-motion:reduce){ .pulse::after{animation:none} }
-.meter{width:100%; height:18px; border-radius:999px; background:var(--line); overflow:hidden}
+.timer{font-variant-numeric:tabular-nums; font-size:28px; font-family:var(--font-display); font-weight:700}
+.meter{width:100%; height:16px; border-radius:999px; background:var(--line); overflow:hidden}
 .meter i{display:block; height:100%; width:0%; background:var(--baton); transition:width .07s linear}
-.timer{font-variant-numeric:tabular-nums; font-size:30px; font-family:var(--font-display); font-weight:700}
-.waiting{
-  display:flex; align-items:center; gap:12px; justify-content:center;
-  font-family:var(--font-display); font-size:22px; font-weight:700;
-}
-.dots i{display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--baton); margin:0 3px; animation:bob 1s infinite}
+.waiting{display:flex; align-items:center; gap:10px; justify-content:center;
+  font-family:var(--font-display); font-size:21px; font-weight:700}
+.dots i{display:inline-block; width:11px; height:11px; border-radius:50%; background:var(--baton);
+  margin:0 3px; animation:bobd 1s infinite}
 .dots i:nth-child(2){animation-delay:.15s} .dots i:nth-child(3){animation-delay:.3s}
-@keyframes bob{0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-8px);opacity:1}}
+@keyframes bobd{0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-8px);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .dots i{animation:none;opacity:1} }
 
-/* たからばこ */
+/* きもち */
+.feels{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.feel{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  min-height:112px; padding:12px 8px; border-radius:20px; background:var(--panel);
+  border:3px solid var(--line); font-family:var(--font-display); font-weight:700; font-size:17px;
+  line-height:1.3; text-align:center; box-shadow:0 4px 0 var(--line)}
+.feel:active{transform:translateY(3px); box-shadow:0 1px 0 var(--line)}
+.feel .fico{font-size:34px; line-height:1}
+.feel[data-f="tanoshii"]{border-color:var(--f-tanoshii); box-shadow:0 4px 0 var(--f-tanoshii)}
+.feel[data-f="futsuu"]{border-color:var(--f-futsuu); box-shadow:0 4px 0 var(--f-futsuu)}
+.feel[data-f="kanashii"]{border-color:var(--f-kanashii); box-shadow:0 4px 0 var(--f-kanashii)}
+.feel[data-f="okotta"]{border-color:var(--f-okotta); box-shadow:0 4px 0 var(--f-okotta)}
+.feel[data-f="gaman"]{border-color:var(--f-gaman); box-shadow:0 4px 0 var(--f-gaman)}
+.feel[data-f="wakaranai"]{border-color:var(--f-wakaranai); box-shadow:0 4px 0 var(--f-wakaranai)}
+
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:700;
+  border-radius:999px; padding:3px 12px; color:#fff; font-family:var(--font-display)}
+.chip.tanoshii{background:var(--f-tanoshii)} .chip.futsuu{background:var(--f-futsuu)}
+.chip.kanashii{background:var(--f-kanashii)} .chip.okotta{background:var(--f-okotta)}
+.chip.gaman{background:var(--f-gaman)} .chip.wakaranai{background:var(--f-wakaranai)}
+
+/* うけとめ */
+.ackbox{font-family:var(--font-display); font-size:26px; font-weight:700; line-height:1.55;
+  text-wrap:balance; text-align:center}
+
+/* たからばこ・親 */
 .day{font-family:var(--font-display); font-weight:700; font-size:16px; color:var(--soft); margin:14px 0 6px}
-.item{display:flex; gap:12px; align-items:flex-start; padding:14px; border:1px solid var(--line); border-radius:16px; background:var(--panel); margin-bottom:10px}
-.item .play{
-  flex:0 0 auto; width:56px; height:56px; border-radius:50%; background:var(--calm); color:#fff;
-  font-size:24px; display:flex; align-items:center; justify-content:center;
-}
-.item .body{min-width:0; flex:1}
-.item .qq{font-size:14px; color:var(--soft)}
-.item .tx{font-size:17px; word-break:break-word}
-.tag{display:inline-block; font-size:13px; font-weight:700; border-radius:999px; padding:2px 10px; margin-top:6px}
+.sess{border:1px solid var(--line); border-radius:18px; background:var(--panel); padding:14px; margin-bottom:12px}
+.sess .head{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+.sess .time{font-size:13px; color:var(--soft); font-variant-numeric:tabular-nums}
+.turn{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px dashed var(--line)}
+.turn .play{flex:0 0 auto; width:48px; height:48px; border-radius:50%; background:var(--calm);
+  color:#fff; font-size:20px; display:flex; align-items:center; justify-content:center}
+.turn .body{min-width:0; flex:1}
+.turn .qq{font-size:13px; color:var(--soft)}
+.turn .tx{font-size:16px; word-break:break-word}
+.tag{display:inline-block; font-size:13px; font-weight:700; border-radius:999px; padding:2px 10px}
 .tag.given{background:color-mix(in srgb, var(--baton) 18%, transparent); color:var(--baton)}
 .tag.kept{background:color-mix(in srgb, var(--calm) 18%, transparent); color:var(--calm)}
 
-/* 親 */
-.signal{display:flex; gap:6px; flex-wrap:wrap}
-.sig{width:34px; text-align:center; font-size:11px; color:var(--soft)}
-.sig b{display:block; width:34px; height:34px; border-radius:10px; border:1px solid var(--line); margin-bottom:3px; font-size:0}
-.sig b.talked{background:var(--calm)}
-.sig b.given{background:var(--baton)}
-.sig b.silent{background:transparent}
-.switch{display:flex; flex-direction:column; gap:10px}
-.opt{display:flex; gap:12px; align-items:flex-start; padding:14px; border:2px solid var(--line); border-radius:16px; cursor:pointer}
+.signal{display:flex; gap:5px; flex-wrap:wrap}
+.sig{width:32px; text-align:center; font-size:11px; color:var(--soft)}
+.sig b{display:block; width:32px; height:32px; border-radius:9px; border:1px solid var(--line);
+  margin-bottom:3px; font-size:0}
+.sig b.talked{background:var(--line)}
+.opt{display:flex; gap:10px; align-items:flex-start; padding:13px; border:2px solid var(--line); border-radius:16px; cursor:pointer}
 .opt.sel{border-color:var(--baton); background:color-mix(in srgb, var(--baton) 7%, transparent)}
 .opt input{margin-top:5px; accent-color:var(--baton); width:20px; height:20px}
 .opt .t{font-weight:700; font-family:var(--font-display)}
 .opt .d{font-size:14px; color:var(--soft)}
-.notice{border-left:4px solid var(--warn); padding:10px 14px; background:color-mix(in srgb, var(--warn) 9%, transparent); border-radius:0 12px 12px 0; font-size:15px}
-.banner{background:color-mix(in srgb, var(--warn) 14%, transparent); border:1px solid var(--warn); color:var(--ink); border-radius:14px; padding:10px 14px; font-size:14px}
-input[type=text]{
-  width:100%; padding:12px 14px; border-radius:12px; border:2px solid var(--line);
-  background:var(--ground); color:var(--ink); font-family:inherit; font-size:16px;
-}
-label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; color:var(--soft); margin-bottom:5px; text-transform:uppercase}
-.contact{font-size:24px; font-family:var(--font-display); font-weight:700; user-select:all; word-break:break-all}
+.notice{border-left:4px solid var(--warn); padding:10px 13px;
+  background:color-mix(in srgb, var(--warn) 9%, transparent); border-radius:0 12px 12px 0; font-size:15px}
+.banner{background:color-mix(in srgb, var(--warn) 14%, transparent); border:1px solid var(--warn);
+  border-radius:14px; padding:10px 14px; font-size:14px}
+input[type=text]{width:100%; padding:12px 14px; border-radius:12px; border:2px solid var(--line);
+  background:var(--ground); color:var(--ink); font-family:inherit; font-size:16px}
+label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; color:var(--soft); margin-bottom:5px}
+.contact{font-size:23px; font-family:var(--font-display); font-weight:700; user-select:all; word-break:break-all}
 .hold{position:relative; overflow:hidden}
-.hold i.fill{position:absolute; left:0; top:0; bottom:0; width:0%; background:color-mix(in srgb, var(--baton) 25%, transparent); pointer-events:none}
+.hold i.fill{position:absolute; left:0; top:0; bottom:0; width:0%;
+  background:color-mix(in srgb, var(--baton) 25%, transparent); pointer-events:none}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -230,20 +217,10 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
   <!-- ホーム -->
   <section class="screen on" id="s-home">
     <div class="center">
-      <svg class="art bob" viewBox="0 0 120 120" aria-hidden="true"><g class="s">
-        <path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>
-        <path class="bd" d="M63 25c-4-8 1-14 7-15-3 6-1 11-2 15z"/>
-        <ellipse class="bd" cx="60" cy="64" rx="36" ry="38"/>
-        <ellipse class="bl" cx="60" cy="81" rx="21" ry="19"/>
-        <circle class="ck" cx="33" cy="72" r="7"/><circle class="ck" cx="87" cy="72" r="7"/>
-        <circle class="eye" cx="48" cy="56" r="5.4"/><circle class="eye" cx="72" cy="56" r="5.4"/>
-        <circle class="gl" cx="49.9" cy="53.9" r="1.9"/><circle class="gl" cx="73.9" cy="53.9" r="1.9"/>
-        <path class="bk" d="M60 65l-8 6 8 7 8-7z"/>
-        <ellipse class="bd wig" cx="22" cy="66" rx="10" ry="17"/>
-      </g></svg>
-      <div class="big" id="homeLead">きょうの おはなしを しよう</div>
+      <div id="homeArt"></div>
+      <div class="big">きょうの おはなしを しよう</div>
       <p class="sub" id="modeNote" hidden></p>
-      <button class="act" id="goAsk"><span class="ico">🎤</span>おはなしする</button>
+      <button class="act" id="goTalk"><span class="ico">🎤</span>おはなしする</button>
       <button class="act calm" id="goBox"><span class="ico">🧰</span>ことばの たからばこ</button>
       <button class="mini" id="goHelp">🆘 こまったとき</button>
     </div>
@@ -252,17 +229,7 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
   <!-- マイクの許可 -->
   <section class="screen" id="s-mic">
     <div class="center">
-      <svg class="art" viewBox="0 0 120 120" aria-hidden="true"><g class="s">
-        <path class="ln bob" d="M60 4v22M50 14l10-10 10 10"/>
-        <path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>
-        <path class="bd" d="M63 33c-4-8 1-14 7-15-3 6-1 11-2 15z"/>
-        <ellipse class="bd" cx="60" cy="70" rx="35" ry="36"/>
-        <ellipse class="bl" cx="60" cy="85" rx="20" ry="17"/>
-        <circle class="ck" cx="34" cy="78" r="7"/><circle class="ck" cx="86" cy="78" r="7"/>
-        <circle class="eye" cx="48" cy="58" r="5.4"/><circle class="eye" cx="72" cy="58" r="5.4"/>
-        <circle class="gl" cx="48" cy="55.4" r="1.9"/><circle class="gl" cx="72" cy="55.4" r="1.9"/>
-        <path class="bk" d="M60 68l-8 6 8 7 8-7z"/>
-      </g></svg>
+      <div id="micArt"></div>
       <h2>マイクを つかっていい？</h2>
       <p class="sub">「いいよ」を おしたら、うえに まどが でてくるよ。<br>「きょか」を おしてね。</p>
       <button class="act" id="askMic"><span class="ico">👌</span>いいよ</button>
@@ -283,29 +250,16 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
   <!-- しつもん -->
   <section class="screen" id="s-ask">
     <div class="stack grow" style="justify-content:center">
-      <svg class="art sm bob" viewBox="0 0 150 120" aria-hidden="true"><g class="s">
-        <path class="pn" d="M92 12h44a8 8 0 0 1 8 8v24a8 8 0 0 1-8 8h-30l-10 10v-10h-4a8 8 0 0 1-8-8V20a8 8 0 0 1 8-8z"/>
-        <text class="qm" x="114" y="44">？</text>
-        <path class="ln" d="M40 100v9M34 109h12M60 100v9M54 109h12"/>
-        <path class="bd" d="M53 27c-4-8 1-14 7-15-3 6-1 11-2 15z"/>
-        <ellipse class="bd" cx="50" cy="66" rx="34" ry="36"/>
-        <ellipse class="bl" cx="50" cy="82" rx="19" ry="17"/>
-        <circle class="ck" cx="25" cy="74" r="6.5"/><circle class="ck" cx="75" cy="74" r="6.5"/>
-        <circle class="eye" cx="39" cy="58" r="5.2"/><circle class="eye" cx="61" cy="58" r="5.2"/>
-        <circle class="gl" cx="40.8" cy="56" r="1.8"/><circle class="gl" cx="62.8" cy="56" r="1.8"/>
-        <path class="bk" d="M50 67l-8 6 8 7 8-7z"/>
-      </g></svg>
-      <div class="q">
-        <div class="qtext" id="qText">—</div>
-      </div>
+      <div class="steps" id="steps1"></div>
+      <div id="askArt"></div>
+      <div class="q"><div class="qtext" id="qText">—</div></div>
+      <button class="act" id="startRec"><span class="ico">🎤</span>はなす</button>
       <div class="row" style="justify-content:center">
         <button class="mini" id="qAgain">🔈 もういちど きく</button>
-        <button class="mini" id="qNext">🔁 べつの しつもん</button>
-        <button class="mini" id="qFree">💬 じぶんで はなす</button>
+        <button class="mini" id="qSkip">これは いいたくない</button>
+        <button class="mini" id="qEnd">もう おしまい</button>
+        <button class="mini" id="qQuit">🏠 やっぱり やめる</button>
       </div>
-      <button class="act" id="startRec"><span class="ico">🎤</span>はなす</button>
-      <button class="act quiet" id="skipToday">きょうは いわない</button>
-      <p class="sub" style="text-align:center">きょう いえなくても、あした また きくよ。</p>
     </div>
   </section>
 
@@ -331,35 +285,41 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
       <div class="timer" id="recTime">0:00</div>
       <div class="meter" aria-hidden="true"><i id="recLevel"></i></div>
       <p class="sub">はなしおわったら「おわり」を おしてね</p>
-      <button class="act quiet" id="stopRec" style="border-color:var(--baton);color:var(--baton);box-shadow:0 4px 0 var(--baton-deep)"><span class="ico">⏹</span>おわり</button>
+      <button class="act quiet" id="stopRec"
+        style="border-color:var(--baton);color:var(--baton);box-shadow:0 4px 0 var(--baton-deep)">
+        <span class="ico">⏹</span>おわり</button>
+    </div>
+  </section>
+
+  <!-- うけとめ（相づち） -->
+  <section class="screen" id="s-ack">
+    <div class="center">
+      <div id="ackArt"></div>
+      <div class="ackbox" id="ackText">—</div>
+      <button class="act calm" id="ackNext"><span class="ico">→</span>つぎへ</button>
+    </div>
+  </section>
+
+  <!-- きもちを えらぶ -->
+  <section class="screen" id="s-feel">
+    <div class="stack grow" style="justify-content:center">
+      <div class="steps" id="steps2"></div>
+      <h2 style="text-align:center">いまの はなし、<br>どんな きもちだった？</h2>
+      <p class="sub" style="text-align:center">じぶんで えらんでね。どれでも いいよ。</p>
+      <div class="feels" id="feels"></div>
+      <button class="mini" id="feelSkip" style="align-self:center">いまは えらばない</button>
     </div>
   </section>
 
   <!-- ききかえす -->
-  <section class="screen" id="s-listen">
-    <div class="stack grow" style="justify-content:center">
-      <svg class="art sm bob" viewBox="0 0 120 120" aria-hidden="true"><g class="s">
-        <path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>
-        <ellipse class="bd" cx="60" cy="66" rx="34" ry="36"/>
-        <ellipse class="bl" cx="60" cy="82" rx="19" ry="17"/>
-        <path class="ln" d="M28 62a32 26 0 0 1 64 0"/>
-        <rect class="bk" x="16" y="58" width="18" height="26" rx="8"/>
-        <rect class="bk" x="86" y="58" width="18" height="26" rx="8"/>
-        <circle class="ck" cx="41" cy="76" r="6"/><circle class="ck" cx="79" cy="76" r="6"/>
-        <path class="ln" d="M49 58a5 5 0 0 1 10 0M62 58a5 5 0 0 1 10 0"/>
-        <path class="bk" d="M60 68l-8 6 8 7 8-7z"/>
-        <path class="ln st spark" d="M104 26l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/>
-        <path class="ln st spark d2" d="M18 32l2.4 5.6L26 40l-5.6 2.4L18 48l-2.4-5.6L10 40l5.6-2.4z"/>
-      </g></svg>
-      <h2 style="text-align:center">じぶんの こえを きいてみよう</h2>
-      <button class="act calm" id="playBack"><span class="ico">▶</span>きく</button>
-      <div class="card" id="txCard" hidden>
-        <label class="fl">はなした ことば</label>
-        <div class="tx" id="txText"></div>
-      </div>
-      <p class="sub" id="txNone" hidden>もじには できなかったけど、こえは ちゃんと のこっているよ。</p>
+  <section class="screen" id="s-review">
+    <div class="stack grow">
+      <h2 style="text-align:center">きょうの おはなし</h2>
+      <p class="sub" style="text-align:center">わたす まえに、じぶんで きいてみよう。</p>
+      <div id="reviewBox"></div>
+      <div class="grow"></div>
       <button class="act" id="toGive"><span class="ico">👌</span>これで いい</button>
-      <button class="act quiet" id="redo">🔁 もういちど はなす</button>
+      <button class="act quiet" id="moreTalk">🎤 もっと はなす</button>
     </div>
   </section>
 
@@ -381,8 +341,8 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
         <rect class="bk" x="70" y="64" width="34" height="12" rx="6"/>
         <path class="st bob" d="M108 58l3.4 7.6 7.6 3.4-7.6 3.4-3.4 7.6-3.4-7.6-7.6-3.4 7.6-3.4z"/>
       </g></svg>
-      <h2 style="text-align:center" id="giveHead">これ、おうちのひとに わたす？</h2>
-      <p class="sub" style="text-align:center" id="giveNote">わたすか わたさないかは、じぶんで きめていいよ。</p>
+      <h2 style="text-align:center">これ、おうちのひとに わたす？</h2>
+      <p class="sub" style="text-align:center">わたすか わたさないかは、じぶんで きめていいよ。</p>
       <button class="act" id="giveVoice"><span class="ico">🎁</span>こえも わたす</button>
       <button class="act quiet" id="giveText">📝 もじだけ わたす</button>
       <button class="act quiet" id="giveNo">🧰 わたさない（たからばこに いれる）</button>
@@ -417,18 +377,15 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
         <rect class="bk" x="52" y="64" width="16" height="22" rx="4"/>
         <circle class="pn" cx="60" cy="78" r="3.4"/>
       </g></svg>
-      <svg class="art" id="artNight" viewBox="0 0 120 120" aria-hidden="true" hidden><g class="s">
-        <path class="bd" d="M96 22a20 20 0 1 0 0 34 22 22 0 0 1 0-34z"/>
-        <path class="st spark" d="M24 22l2.4 5.6L32 30l-5.6 2.4L24 38l-2.4-5.6L16 30l5.6-2.4z"/>
-        <path class="ln" d="M44 100v9M38 109h12M64 100v9M58 109h12"/>
-        <ellipse class="bd" cx="54" cy="70" rx="33" ry="34"/>
-        <ellipse class="bl" cx="54" cy="85" rx="18" ry="15"/>
-        <circle class="ck" cx="30" cy="78" r="6.5"/><circle class="ck" cx="78" cy="78" r="6.5"/>
-        <path class="ln" d="M38 62a6 6 0 0 0 11 0M59 62a6 6 0 0 0 11 0"/>
-        <path class="bk" d="M54 72l-8 6 8 7 8-7z"/>
-      </g></svg>
+      <div id="artNight" hidden></div>
       <h2 id="doneHead">わたしたよ</h2>
       <p class="sub" id="doneSub">あしたも きくね。</p>
+      <div class="card" id="doneHelp" hidden style="text-align:left">
+        <h2 style="font-size:19px">ひとりで がまんしなくて いいよ</h2>
+        <p class="sub" style="margin:6px 0 0">こまったときは、この ひとに いえるよ。</p>
+        <div class="contact" id="doneHelpName">—</div>
+        <div class="contact" id="doneHelpTel" style="font-size:19px">—</div>
+      </div>
       <button class="act calm" id="doneBox"><span class="ico">🧰</span>たからばこを みる</button>
       <button class="act quiet" data-go="home">🏠 さいしょに もどる</button>
     </div>
@@ -442,13 +399,12 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
       <path class="st spark d2" d="M100 20l3 6.8 6.8 3-6.8 3-3 6.8-3-6.8-6.8-3 6.8-3z"/>
       <path class="st spark d3" d="M60 12l2.4 5.6L68 20l-5.6 2.4L60 28l-2.4-5.6L52 20l5.6-2.4z"/>
       <path class="ch" d="M18 62a38 24 0 0 1 76 0v4H18z"/>
-      <path class="ln" d="M18 62a38 24 0 0 1 76 0"/>
       <rect class="ch" x="18" y="66" width="76" height="40" rx="8"/>
       <path class="ln" d="M18 80h76"/>
       <rect class="bk" x="48" y="58" width="16" height="24" rx="4"/>
       <circle class="pn" cx="56" cy="74" r="3.4"/>
     </g></svg>
-    <p class="sub">じぶんが はなした ことばは、ぜんぶ ここに のこるよ。</p>
+    <p class="sub">はなした ことばは、わたしても わたさなくても、ぜんぶ ここに のこるよ。</p>
     <div id="boxList" class="grow"></div>
     <button class="act quiet" data-go="home">🏠 さいしょに もどる</button>
   </section>
@@ -472,14 +428,8 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
     </g></svg>
     <div class="card stack">
       <p style="margin:0">ひとりで がまんしなくて いいよ。この ひとに いえるよ。</p>
-      <div>
-        <label class="fl">あいてのなまえ</label>
-        <div class="contact" id="helpName">（おうちのひとの がめんで きめてね）</div>
-      </div>
-      <div>
-        <label class="fl">でんわばんごう</label>
-        <div class="contact" id="helpTel">—</div>
-      </div>
+      <div><label class="fl">あいての なまえ</label><div class="contact" id="helpName">—</div></div>
+      <div><label class="fl">でんわばんごう</label><div class="contact" id="helpTel">—</div></div>
       <p class="sub">ばんごうを ながおしすると コピーできるよ。</p>
     </div>
     <div class="grow"></div>
@@ -492,33 +442,35 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
 
     <div class="card stack">
       <h2>毎日のようす</h2>
-      <p class="sub" style="margin:0">話した日／渡してくれた日だけが分かります。中身は本人が渡したものだけ見えます。</p>
+      <p class="sub" style="margin:0">話した日と、渡してくれた日が分かります。色は本人が選んだ気持ちです。渡していない日は色が出ません。</p>
       <div class="signal" id="signal"></div>
       <div class="row" style="font-size:13px;color:var(--soft)">
-        <span><b style="display:inline-block;width:12px;height:12px;border-radius:4px;background:var(--baton)"></b> 渡してくれた</span>
-        <span><b style="display:inline-block;width:12px;height:12px;border-radius:4px;background:var(--calm)"></b> 話した</span>
-        <span><b style="display:inline-block;width:12px;height:12px;border-radius:4px;border:1px solid var(--line)"></b> 話さなかった</span>
+        <span>色つき＝渡してくれた日（色＝本人が選んだ気持ち）</span>
+        <span>グレー＝話したが渡していない</span>
+        <span>空＝話さなかった</span>
       </div>
     </div>
 
     <div class="card stack">
       <h2>見え方のスイッチ</h2>
-      <div class="switch" id="modeSwitch">
+      <div class="switch stack" id="modeSwitch">
         <label class="opt" data-mode="child">
           <input type="radio" name="pmode" id="pm1" value="child">
-          <span><span class="t">① 本人が選ぶ（標準）</span><span class="d">本人が渡したものだけ届きます。毎日のようす信号は常に見えます。</span></span>
+          <span><span class="t">① 本人が選ぶ（標準）</span>
+          <span class="d">本人が渡したものだけ届きます。毎日のようす信号は常に見えます。</span></span>
         </label>
         <label class="opt" data-mode="all">
           <input type="radio" name="pmode" id="pm2" value="all">
-          <span><span class="t">② ぜんぶ届く</span><span class="d">話した全文が届きます。えらぶ前に、本人の画面に「ぜんぶ届く」とはっきり出ます。</span></span>
+          <span><span class="t">② ぜんぶ届く</span>
+          <span class="d">話した全部が届きます。えらぶ前に、本人の画面に「ぜんぶ届く」とはっきり出ます。</span></span>
         </label>
       </div>
-      <div class="notice" id="allNotice" hidden>②にすると、本人の最初の画面と話す前の画面に「いま はなすことは ぜんぶ おうちのひとに とどきます」と表示され、読み上げます。黙って全部見ることはできません。</div>
+      <div class="notice" id="allNotice" hidden>②にすると、本人の最初の画面と話す前に「いま はなすことは ぜんぶ おうちのひとに とどきます」と表示され、読み上げます。黙って全部見ることはできません。</div>
     </div>
 
     <div class="card stack">
       <h2>こまったときの連絡先</h2>
-      <p class="sub" style="margin:0">本人の「こまったとき」画面に出ます。人に会える先を必ず1つ入れてください。</p>
+      <p class="sub" style="margin:0">本人の「こまったとき」画面に出ます。つらい気持ちを選んだ日は、話し終わりにも自動で出ます。</p>
       <div><label class="fl" for="cName">なまえ</label><input type="text" id="cName" placeholder="例：ばあば"></div>
       <div><label class="fl" for="cTel">でんわばんごう</label><input type="text" id="cTel" placeholder="例：090-0000-0000"></div>
       <button class="mini" id="saveContact">ほぞんする</button>
@@ -526,7 +478,8 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
     </div>
 
     <div class="card stack">
-      <h2>届いた声</h2>
+      <h2>届いたおはなし</h2>
+      <p class="sub" style="margin:0">要約していません。本人が話した順に、そのまま並んでいます。</p>
       <div id="parentList"></div>
     </div>
 
@@ -538,15 +491,56 @@ label.fl{display:block; font-size:13px; font-weight:700; letter-spacing:.06em; c
 <script>
 "use strict";
 
-/* ════════ 1. ほぞん ════════════════════════════════════════════ */
-const DB_NAME = "koe-no-baton", DB_VER = 1, STORE = "records";
+/* ═══ 1. きもち ═══════════════════════════════════════════════════
+   本人が選ぶ。AIは解釈しない。だからこのラベルは親に渡していい情報。 */
+const FEELINGS = [
+  { id:"tanoshii",  label:"たのしかった", ico:"😄", face:"happy",
+    ack:"たのしかったんだね。きかせて くれて ありがとう。",
+    deep:"どこが いちばん たのしかった？" },
+  { id:"futsuu",    label:"ふつうだった", ico:"😌", face:"calm",
+    ack:"そっか。ふつうの ひも あるよね。",
+    deep:"きょう いちばん おぼえてることは なに？" },
+  { id:"kanashii",  label:"かなしかった", ico:"😢", face:"sad",
+    ack:"そうだったんだね。かなしかったんだね。",
+    deep:"なにが あったか、もうすこし きかせて くれる？" },
+  { id:"okotta",    label:"はらが たった", ico:"😠", face:"angry",
+    ack:"そうだったんだね。はらが たったんだね。",
+    deep:"なにが いやだったか、きかせて くれる？" },
+  { id:"gaman",     label:"がまん した",  ico:"😣", face:"gaman",
+    ack:"がまん したんだね。よく はなして くれたね。",
+    deep:"なにを がまん したの？" },
+  { id:"wakaranai", label:"わからない",   ico:"🤔", face:"puzzled",
+    ack:"わからなくて いいよ。そのままで いいよ。",
+    deep:"きょう いちばん おぼえてることは なに？" }
+];
+const FEEL = {}; FEELINGS.forEach(f => FEEL[f.id] = f);
+const TOUGH = ["kanashii","okotta","gaman"];   // 連絡先を出す気持ち
+
+/* 3〜4往復の台本。いきなり本題は聞かない。 */
+const OPENERS = [
+  "きょう、なにを してた？",
+  "きょう、どんな いちにちだった？",
+  "きょう、だれと いた？"
+];
+const LAST_Q = "ほかに、はなしたいことは ある？";
+// 録音のあと、気持ちを聞く前の軽い相づち。解釈しない言葉だけ。
+const NODS = ["そっか。","うんうん。","はなして くれて ありがとう。","ちゃんと きいてるよ。"];
+
+const STEPS = [
+  { kind:"ask",  q:() => OPENERS[Math.floor(Math.random()*OPENERS.length)] },
+  { kind:"feel" },
+  { kind:"ask",  q:() => sess.feeling ? FEEL[sess.feeling].deep : "きょう いちばん おぼえてることは なに？" },
+  { kind:"ask",  q:() => LAST_Q }
+];
+
+/* ═══ 2. ほぞん ═══════════════════════════════════════════════════ */
+const DB_NAME = "koe-no-baton", DB_VER = 2, STORE = "records";
 let db = null, memOnly = false, mem = [];
 
 function openDB(){
   return new Promise((resolve) => {
     let req;
-    try { req = indexedDB.open(DB_NAME, DB_VER); }
-    catch (e) { return resolve(null); }
+    try { req = indexedDB.open(DB_NAME, DB_VER); } catch(e){ return resolve(null); }
     req.onupgradeneeded = () => {
       const d = req.result;
       if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath:"id" });
@@ -557,7 +551,6 @@ function openDB(){
     setTimeout(() => resolve(req.result || null), 3000);
   });
 }
-
 async function put(rec){
   if (memOnly || !db){ const i = mem.findIndex(r=>r.id===rec.id); i>=0?mem[i]=rec:mem.push(rec); return; }
   await new Promise((res,rej)=>{
@@ -566,31 +559,38 @@ async function put(rec){
     t.oncomplete = res; t.onerror = ()=>rej(t.error); t.onabort = ()=>rej(t.error);
   }).catch(()=>{ memOnly = true; mem.push(rec); });
 }
-
 async function all(){
   if (memOnly || !db) return mem.slice().sort((a,b)=>b.at-a.at);
-  return await new Promise((res)=>{
-    const out = [];
+  const out = await new Promise((res)=>{
+    const acc = [];
     const t = db.transaction(STORE,"readonly");
     const c = t.objectStore(STORE).openCursor();
-    c.onsuccess = () => { const cur = c.result; if (cur){ out.push(cur.value); cur.continue(); } else res(out.sort((a,b)=>b.at-a.at)); };
-    c.onerror = () => res(out);
+    c.onsuccess = () => { const cur = c.result; if (cur){ acc.push(cur.value); cur.continue(); } else res(acc); };
+    c.onerror = () => res(acc);
   }).catch(()=>[]);
+  return out.map(normalize).sort((a,b)=>b.at-a.at);
 }
-
+// 古い1問1答の記録も、1往復のおはなしとして読めるようにする
+function normalize(r){
+  if (r && !r.turns) return {
+    id:r.id, at:r.at, day:r.day, feeling:null, handed:r.handed, handedAt:r.handedAt,
+    turns:[{ q:r.question||"", blob:r.blob, mime:r.mime, ms:r.ms, transcript:r.transcript, transcriptOk:r.transcriptOk }]
+  };
+  return r;
+}
 const LS = {
-  get(k, d){ try{ const v = localStorage.getItem("knb:"+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem("knb:"+k, JSON.stringify(v)); }catch(e){} }
+  get(k,d){ try{ const v = localStorage.getItem("knb:"+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem("knb:"+k, JSON.stringify(v)); }catch(e){} }
 };
 
-/* ════════ 2. よみあげ ══════════════════════════════════════════ */
+/* ═══ 3. よみあげ ═════════════════════════════════════════════════ */
 let voiceOn = LS.get("voice", true);
 function say(text){
   if (!voiceOn || !text) return;
   try{
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ja-JP"; u.rate = 0.92; u.pitch = 1.05;
+    u.lang = "ja-JP"; u.rate = 0.9; u.pitch = 1.05;
     const jv = speechSynthesis.getVoices().find(v=>/ja/i.test(v.lang));
     if (jv) u.voice = jv;
     speechSynthesis.speak(u);
@@ -598,25 +598,46 @@ function say(text){
 }
 try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = ()=>{}; }catch(e){}
 
-/* ════════ 3. しつもん ══════════════════════════════════════════ */
-const QUESTIONS = [
-  "きょう いちばん たのしかったことは なに？",
-  "きょう ちょっと いやだったことは あった？",
-  "いま どんな きもち？",
-  "きょう だれと あそんだ？",
-  "きょう がんばったことは なに？",
-  "おうちのひとに つたえたいことは ある？",
-  "あした やってみたいことは なに？"
-];
-const FREE_Q = "はなしたいことを はなしてね";
-function todayKey(d){ d = d || new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
-let qIndex = (function(){
-  const base = new Date(); const start = new Date(base.getFullYear(),0,0);
-  return Math.floor((base-start)/86400000) % QUESTIONS.length;
-})();
-let currentQ = QUESTIONS[qIndex];
+/* ═══ 4. こえトリの かお ══════════════════════════════════════════ */
+const B_FEET = '<path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>';
+const B_BODY = '<path class="bd" d="M63 25c-4-8 1-14 7-15-3 6-1 11-2 15z"/>'
+  + '<ellipse class="bd" cx="60" cy="64" rx="36" ry="38"/>'
+  + '<ellipse class="bl" cx="60" cy="81" rx="21" ry="19"/>'
+  + '<circle class="ck" cx="33" cy="72" r="7"/><circle class="ck" cx="87" cy="72" r="7"/>';
+const B_BEAK = '<path class="bk" d="M60 65l-8 6 8 7 8-7z"/>';
+const E_OPEN = '<circle class="eye" cx="48" cy="56" r="5.4"/><circle class="eye" cx="72" cy="56" r="5.4"/>'
+  + '<circle class="gl" cx="49.9" cy="53.9" r="1.9"/><circle class="gl" cx="73.9" cy="53.9" r="1.9"/>';
+const E_SMILE = '<path class="ln" d="M42 58a6 6 0 0 1 12 0M66 58a6 6 0 0 1 12 0"/>';
+const E_SHUT  = '<path class="ln" d="M42 57h12M66 57h12"/>';
+const FACES = {
+  happy:   E_SMILE,
+  calm:    E_OPEN,
+  sad:     E_OPEN + '<path class="tear" d="M50 62q-3.5 6.5 0 9.5 3.5-3 0-9.5z"/>',
+  angry:   E_OPEN + '<path class="ln" d="M39 45l13 6M81 45l-13 6"/>',
+  gaman:   E_SHUT,
+  puzzled: E_OPEN + '<text class="qm" x="100" y="32">？</text>',
+  sleep:   E_SHUT + '<path class="bd" d="M100 20a16 16 0 1 0 0 28 18 18 0 0 1 0-28z"/>',
+  wave:    E_OPEN
+};
+function bird(face, cls){
+  const extra = face === "wave" ? '<ellipse class="bd wig" cx="22" cy="66" rx="10" ry="17"/>' : "";
+  return '<svg class="art ' + (cls||"") + '" viewBox="0 0 120 120" aria-hidden="true"><g class="s">'
+    + B_FEET + B_BODY + (FACES[face] || E_OPEN) + B_BEAK + extra + '</g></svg>';
+}
+function birdUp(){   // マイク画面：上を見て矢印
+  return '<svg class="art" viewBox="0 0 120 120" aria-hidden="true"><g class="s">'
+    + '<path class="ln bob" d="M60 4v22M50 14l10-10 10 10"/>'
+    + '<path class="ln" d="M50 100v9M44 109h12M70 100v9M64 109h12"/>'
+    + '<path class="bd" d="M63 33c-4-8 1-14 7-15-3 6-1 11-2 15z"/>'
+    + '<ellipse class="bd" cx="60" cy="70" rx="35" ry="36"/>'
+    + '<ellipse class="bl" cx="60" cy="85" rx="20" ry="17"/>'
+    + '<circle class="ck" cx="34" cy="78" r="7"/><circle class="ck" cx="86" cy="78" r="7"/>'
+    + '<circle class="eye" cx="48" cy="58" r="5.4"/><circle class="eye" cx="72" cy="58" r="5.4"/>'
+    + '<circle class="gl" cx="48" cy="55.4" r="1.9"/><circle class="gl" cx="72" cy="55.4" r="1.9"/>'
+    + '<path class="bk" d="M60 68l-8 6 8 7 8-7z"/></g></svg>';
+}
 
-/* ════════ 4. がめん ════════════════════════════════════════════ */
+/* ═══ 5. がめん ═══════════════════════════════════════════════════ */
 const $ = (s)=>document.querySelector(s);
 const screens = {};
 document.querySelectorAll(".screen").forEach(s => screens[s.id.slice(2)] = s);
@@ -625,16 +646,19 @@ function go(name){
   at = name;
   Object.entries(screens).forEach(([k,el]) => el.classList.toggle("on", k===name));
   window.scrollTo(0,0);
+  if (name !== "box" && name !== "parent" && name !== "review") stopPlay();
   if (name==="home")   { releaseMic(); renderHome(); say(homeSpeech()); }
   if (name==="mic")    { resetMicScreen(); }
   if (name==="ask")    { renderAsk(); }
-  if (name==="box")    { renderBox(); say("ことばの たからばこ"); }
+  if (name==="feel")   { renderFeel(); }
+  if (name==="review") { renderReview(); }
+  if (name==="box")    { renderBox(); }
   if (name==="help")   { renderHelp(); say("こまったときは、この ひとに いえるよ"); }
   if (name==="parent") { renderParent(); }
 }
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ()=>go(b.dataset.go)));
 
-/* ════════ 5. マイク ════════════════════════════════════════════ */
+/* ═══ 6. マイク・録音 ═════════════════════════════════════════════ */
 let stream = null, recorder = null, chunks = [], recStart = 0, tick = null;
 let audioCtx = null, analyser = null, rafId = 0;
 let recog = null, transcript = "", recogWorked = false;
@@ -643,18 +667,12 @@ const MAX_MS = 60000;
 function micSupported(){
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 }
-
 function resetMicScreen(){
-  $("#askMic").hidden = false;
-  $("#micWaiting").hidden = true;
-  $("#micDenied").hidden = true;
+  $("#askMic").hidden = false; $("#micWaiting").hidden = true; $("#micDenied").hidden = true;
 }
-
 async function getMic(){
-  $("#micDenied").hidden = true;
-  $("#micWaiting").hidden = false;
-  $("#askMic").hidden = true;
-  say("うえの まどで、きょかを おしてね");           // 無言で待たせない
+  $("#micDenied").hidden = true; $("#micWaiting").hidden = false; $("#askMic").hidden = true;
+  say("うえの まどで、きょかを おしてね");          // 無言で待たせない
   try{
     stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true } });
     $("#micWaiting").hidden = true;
@@ -662,20 +680,17 @@ async function getMic(){
     go("ask");
     return true;
   }catch(err){
-    $("#micWaiting").hidden = true;
-    $("#micDenied").hidden = false;
+    $("#micWaiting").hidden = true; $("#micDenied").hidden = false;
     $("#micErr").textContent = (err && (err.name+": "+err.message)) || "unknown";
     say("マイクが つかえなかったよ");
     return false;
   }
 }
-
 function pickMime(){
-  const cands = ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus",""];
-  for (const c of cands){ if (!c || (window.MediaRecorder && MediaRecorder.isTypeSupported(c))) return c; }
+  const c = ["audio/webm;codecs=opus","audio/webm","audio/mp4","audio/ogg;codecs=opus",""];
+  for (const m of c){ if (!m || (window.MediaRecorder && MediaRecorder.isTypeSupported(m))) return m; }
   return "";
 }
-
 function startLevel(){
   try{
     audioCtx = new (window.AudioContext||window.webkitAudioContext)();
@@ -686,8 +701,7 @@ function startLevel(){
     const loop = () => {
       analyser.getByteFrequencyData(buf);
       let sum = 0; for (let i=0;i<buf.length;i++) sum += buf[i];
-      const lvl = Math.min(100, (sum/buf.length) * 2.4);
-      $("#recLevel").style.width = lvl.toFixed(0)+"%";
+      $("#recLevel").style.width = Math.min(100,(sum/buf.length)*2.4).toFixed(0)+"%";
       rafId = requestAnimationFrame(loop);
     };
     loop();
@@ -698,7 +712,6 @@ function stopLevel(){
   if (audioCtx){ try{ audioCtx.close(); }catch(e){} audioCtx = null; }
   $("#recLevel").style.width = "0%";
 }
-
 function startRecog(){
   transcript = ""; recogWorked = false;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -706,14 +719,14 @@ function startRecog(){
   try{
     recog = new SR();
     recog.lang = "ja-JP"; recog.continuous = true; recog.interimResults = true;
-    let finalTx = "";
+    let fin = "";
     recog.onresult = (e) => {
-      let interim = "";
+      let itm = "";
       for (let i = e.resultIndex; i < e.results.length; i++){
         const r = e.results[i];
-        if (r.isFinal) finalTx += r[0].transcript; else interim += r[0].transcript;
+        if (r.isFinal) fin += r[0].transcript; else itm += r[0].transcript;
       }
-      transcript = (finalTx + interim).trim();
+      transcript = (fin + itm).trim();
       if (transcript) recogWorked = true;
     };
     recog.onerror = () => {};
@@ -721,8 +734,55 @@ function startRecog(){
   }catch(e){ recog = null; }
 }
 function stopRecog(){ if (recog){ try{ recog.stop(); }catch(e){} recog = null; } }
+function releaseMic(){
+  if (stream){ stream.getTracks().forEach(t=>{ try{t.stop();}catch(e){} }); stream = null; }
+}
+function fmt(ms){ const s = Math.max(0, Math.round(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
 
-let pending = null;   // 録ったばかりの1件
+/* ═══ 7. おはなし（往復）の進行 ═══════════════════════════════════ */
+let sess = null;      // いま話している1回ぶん
+let stepIdx = 0;
+let currentQ = "";
+
+function todayKey(d){ d = d||new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+function newSession(){
+  sess = { id:"s"+Date.now()+Math.random().toString(36).slice(2,6), at:Date.now(), day:todayKey(),
+           turns:[], feeling:null, handed:null, handedAt:null };
+  stepIdx = 0;
+}
+function ensureMicThenStart(){
+  if (!micSupported()){ showBanner("このブラウザでは録音できません。iPhoneはSafari、AndroidはChromeで開いてください。"); return; }
+  newSession();
+  if (stream){ go("ask"); return; }
+  go("mic");
+  if (LS.get("micOK", false)) getMic();      // 2回目以降はボタンを待たない
+}
+
+function renderSteps(){
+  const html = STEPS.map((s,i) =>
+    '<i class="'+(i<stepIdx?"past":(i===stepIdx?"now":""))+'"></i>').join("");
+  $("#steps1").innerHTML = html; $("#steps2").innerHTML = html;
+}
+function renderAsk(){
+  const step = STEPS[stepIdx];
+  currentQ = (step && step.kind==="ask") ? step.q() : LAST_Q;
+  $("#qText").textContent = currentQ;
+  $("#askArt").innerHTML = bird(sess && sess.feeling ? FEEL[sess.feeling].face : "wave", "sm bob");
+  // 1回も話していないうちは「おしまい」のかわりに「やめる」を出す。いつでも降りられるようにする。
+  $("#qEnd").hidden  = sess.turns.length === 0;
+  $("#qQuit").hidden = sess.turns.length > 0;
+  renderSteps();
+  say((mode()==="all" ? "はなすことは ぜんぶ おうちのひとに とどきます。" : "") + currentQ);
+}
+function advance(){
+  stepIdx++;
+  if (stepIdx >= STEPS.length){ go("review"); return; }
+  const step = STEPS[stepIdx];
+  if (step.kind === "feel"){ go("feel"); return; }
+  go("ask");
+}
 
 async function beginRecording(){
   if (!stream){ go("mic"); return; }
@@ -744,204 +804,325 @@ async function beginRecording(){
     if (ms >= MAX_MS) endRecording();
   }, 200);
 }
-
 function endRecording(){
   if (tick) clearInterval(tick), tick = null;
   stopLevel(); stopRecog();
   if (recorder && recorder.state !== "inactive"){ try{ recorder.stop(); }catch(e){ onRecorded(); } }
   else onRecorded();
 }
-
-function releaseMic(){
-  if (stream){ stream.getTracks().forEach(t=>{ try{t.stop();}catch(e){} }); stream = null; }
-}
-
-function onRecorded(){
+async function onRecorded(){
   const ms = Date.now() - recStart;
   const type = (recorder && recorder.mimeType) || (chunks[0] && chunks[0].type) || "audio/webm";
   const blob = chunks.length ? new Blob(chunks, { type }) : null;
-  releaseMic();
-  pending = {
-    id: "r"+Date.now()+Math.random().toString(36).slice(2,7),
-    at: Date.now(), day: todayKey(), question: currentQ,
-    blob, mime: type, ms,
-    transcript: transcript.trim(), transcriptOk: recogWorked && !!transcript.trim(),
-    handed: null, handedAt: null
-  };
-  // 録った瞬間に保存する。渡すかどうかは別。約束2＝言ったことは必ずのこる。
-  put(pending);
-  renderListen();
-  go("listen");
-  say("じぶんの こえを きいてみよう");
+  sess.turns.push({ q: currentQ, blob, mime:type, ms,
+                    transcript: transcript.trim(), transcriptOk: recogWorked && !!transcript.trim() });
+  await put(sess);                 // 話した時点で必ず保存する。渡すかどうかは別の話。
+  const nod = NODS[Math.floor(Math.random()*NODS.length)];
+  showAck(nod, sess.feeling ? FEEL[sess.feeling].face : "happy", advance);
 }
 
-function fmt(ms){ const s = Math.max(0, Math.round(ms/1000)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+let ackGo = null, ackTimer = null;
+function showAck(text, face, next){
+  $("#ackText").textContent = text;
+  $("#ackArt").innerHTML = bird(face, "bob");
+  ackGo = next;
+  go("ack");
+  say(text);
+  if (ackTimer) clearTimeout(ackTimer);
+  ackTimer = setTimeout(()=>{ if (at==="ack" && ackGo){ const f = ackGo; ackGo = null; f(); } }, 3400);
+}
+$("#ackNext").addEventListener("click", ()=>{
+  if (ackTimer) clearTimeout(ackTimer);
+  if (ackGo){ const f = ackGo; ackGo = null; f(); }
+});
 
-/* ════════ 6. さいせい ══════════════════════════════════════════ */
-let audioEl = new Audio(), curUrl = null;
-function play(blob, btn){
-  if (!blob){ say("こえが みつからなかったよ"); return; }
+function renderFeel(){
+  renderSteps();
+  $("#feels").innerHTML = FEELINGS.map(f =>
+    '<button class="feel" data-f="'+f.id+'"><span class="fico">'+f.ico+'</span>'+f.label+'</button>').join("");
+  $("#feels").querySelectorAll(".feel").forEach(b => {
+    b.addEventListener("click", () => chooseFeel(b.dataset.f));
+  });
+  say("いまの はなし、どんな きもちだった？ じぶんで えらんでね");
+}
+async function chooseFeel(id){
+  sess.feeling = id;
+  await put(sess);
+  const f = FEEL[id];
+  showAck(f.ack, f.face, advance);
+}
+$("#feelSkip").addEventListener("click", ()=>{ sess.feeling = null; advance(); });
+
+$("#qAgain").addEventListener("click", ()=>say(currentQ));
+$("#qSkip").addEventListener("click", ()=>{
+  showAck("いいよ。いわなくて だいじょうぶ。", "calm", advance);
+});
+$("#qEnd").addEventListener("click", ()=>{ go("review"); });
+$("#qQuit").addEventListener("click", ()=>{
+  showAck("いいよ。きょうは いわなくて だいじょうぶ。あした また きくね。", "sleep", ()=>go("home"));
+});
+$("#startRec").addEventListener("click", beginRecording);
+$("#stopRec").addEventListener("click", endRecording);
+$("#moreTalk").addEventListener("click", ()=>{
+  stepIdx = STEPS.length - 1;     // 最後の自由質問にもどる
+  if (stream) go("ask"); else { go("mic"); if (LS.get("micOK",false)) getMic(); }
+});
+
+/* ═══ 8. さいせい ═════════════════════════════════════════════════ */
+let audioEl = new Audio(), curUrl = null, seq = [], seqBtn = null;
+function stopPlay(){
+  seq = [];
+  if (seqBtn){ seqBtn.textContent = "▶ ぜんぶ きく"; seqBtn = null; }
+  try{ audioEl.pause(); }catch(e){}
+  if (curUrl){ URL.revokeObjectURL(curUrl); curUrl = null; }
+}
+function playBlob(blob, onEnd, btn){
+  if (!blob){ if (onEnd) onEnd(); return; }
   try{
     if (curUrl) URL.revokeObjectURL(curUrl);
     curUrl = URL.createObjectURL(blob);
     audioEl.pause(); audioEl = new Audio(curUrl);
-    if (btn){ btn.textContent = "⏸"; audioEl.onended = ()=>{ btn.textContent = "▶"; }; }
     try{ speechSynthesis.cancel(); }catch(e){}
-    audioEl.play().catch(()=>{});
-  }catch(e){}
+    if (btn){ btn.textContent = "⏸"; audioEl.onended = ()=>{ btn.textContent = "▶"; if(onEnd) onEnd(); }; }
+    else audioEl.onended = ()=>{ if (onEnd) onEnd(); };
+    audioEl.play().catch(()=>{ if (onEnd) onEnd(); });
+  }catch(e){ if (onEnd) onEnd(); }
+}
+function playAll(turns, btn){
+  stopPlay();
+  seq = turns.filter(t=>t.blob).map(t=>t.blob);
+  seqBtn = btn;
+  if (btn) btn.textContent = "⏹ とめる";
+  stepSeq();
+}
+function stepSeq(){
+  if (!seq.length){ if (seqBtn){ seqBtn.textContent = "▶ ぜんぶ きく"; seqBtn = null; } return; }
+  playBlob(seq.shift(), stepSeq);
 }
 
-/* ════════ 7. びょうが ══════════════════════════════════════════ */
+/* ═══ 9. びょうが ═════════════════════════════════════════════════ */
 function mode(){ return LS.get("pmode","child"); }
-
 function homeSpeech(){
   return mode()==="all"
     ? "いま はなすことは ぜんぶ おうちのひとに とどきます。きょうの おはなしを しよう"
     : "きょうの おはなしを しよう";
 }
 function renderHome(){
-  const all = mode()==="all";
-  $("#modeNote").hidden = !all;
-  $("#modeNote").textContent = all ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "";
+  $("#homeArt").innerHTML = bird("wave","bob");
+  const a = mode()==="all";
+  $("#modeNote").hidden = !a;
+  $("#modeNote").textContent = a ? "いま はなすことは ぜんぶ おうちのひとに とどきます。" : "";
 }
-
-function renderAsk(){
-  $("#qText").textContent = currentQ;
-  const all = mode()==="all";
-  $("#giveHead"); // no-op
-  say((all ? "はなすことは ぜんぶ おうちのひとに とどきます。" : "") + currentQ);
+function turnRow(t, i){
+  const el = document.createElement("div");
+  el.className = "turn";
+  if (t.blob){
+    const b = document.createElement("button");
+    b.className = "play"; b.textContent = "▶"; b.setAttribute("aria-label","こえを きく");
+    b.addEventListener("click", ()=>{ stopPlay(); playBlob(t.blob, null, b); });
+    el.appendChild(b);
+  }
+  const body = document.createElement("div"); body.className = "body";
+  const q = document.createElement("div"); q.className = "qq"; q.textContent = t.q;
+  const tx = document.createElement("div"); tx.className = "tx";
+  tx.textContent = t.transcriptOk ? t.transcript : "（こえだけ・"+fmt(t.ms)+"）";
+  body.appendChild(q); body.appendChild(tx);
+  el.appendChild(body);
+  return el;
 }
-
-function renderListen(){
-  const ok = pending && pending.transcriptOk;
-  $("#txCard").hidden = !ok;
-  $("#txNone").hidden = !!ok;
-  if (ok) $("#txText").textContent = pending.transcript;
-  $("#giveText").hidden = !ok;
+function feelChip(id){
+  if (!id) return null;
+  const f = FEEL[id];
+  const s = document.createElement("span");
+  s.className = "chip " + id;
+  s.textContent = f.ico + " " + f.label;
+  return s;
 }
-
+function renderReview(){
+  const host = $("#reviewBox"); host.innerHTML = "";
+  const card = document.createElement("div"); card.className = "sess";
+  const head = document.createElement("div"); head.className = "head";
+  const chip = feelChip(sess.feeling); if (chip) head.appendChild(chip);
+  const allBtn = document.createElement("button");
+  allBtn.className = "mini"; allBtn.textContent = "▶ ぜんぶ きく";
+  allBtn.addEventListener("click", ()=>{
+    if (seqBtn === allBtn){ stopPlay(); return; }
+    playAll(sess.turns, allBtn);
+  });
+  head.appendChild(allBtn);
+  card.appendChild(head);
+  sess.turns.forEach((t,i)=>card.appendChild(turnRow(t,i)));
+  if (!sess.turns.length){
+    const p = document.createElement("p"); p.className = "sub";
+    p.textContent = "こえは のこっていないよ。もういちど はなしてみる？";
+    card.appendChild(p);
+  }
+  host.appendChild(card);
+  $("#giveText").hidden = !sess.turns.some(t=>t.transcriptOk);
+  say("わたす まえに、じぶんで きいてみよう");
+}
 async function renderBox(){
   const rs = await all();
-  const host = $("#boxList");
-  host.innerHTML = "";
+  const host = $("#boxList"); host.innerHTML = "";
   if (!rs.length){
     host.innerHTML = '<div class="card" style="text-align:center"><p style="margin:0">まだ なにも ないよ。<br>「おはなしする」から はじめよう。</p></div>';
-    return;
+    say("ことばの たからばこ"); return;
   }
   let lastDay = "";
-  rs.forEach(r => {
-    if (r.day !== lastDay){
-      lastDay = r.day;
-      const h = document.createElement("div");
-      h.className = "day"; h.textContent = jpDay(r.day);
+  rs.forEach(s => {
+    if (s.day !== lastDay){
+      lastDay = s.day;
+      const h = document.createElement("div"); h.className = "day"; h.textContent = jpDay(s.day);
       host.appendChild(h);
     }
-    const el = document.createElement("div");
-    el.className = "item";
-    const b = document.createElement("button");
-    b.className = "play"; b.textContent = "▶";
-    b.setAttribute("aria-label","こえを きく");
-    b.addEventListener("click", ()=>play(r.blob, b));
-    const body = document.createElement("div");
-    body.className = "body";
-    const q = document.createElement("div"); q.className = "qq"; q.textContent = r.question;
-    const tx = document.createElement("div"); tx.className = "tx";
-    tx.textContent = r.transcriptOk ? r.transcript : "（こえだけ・"+fmt(r.ms)+"）";
-    body.appendChild(q); body.appendChild(tx);
+    const card = document.createElement("div"); card.className = "sess";
+    const head = document.createElement("div"); head.className = "head";
+    const chip = feelChip(s.feeling); if (chip) head.appendChild(chip);
     const tag = document.createElement("span");
-    if (r.handed && r.handed!=="no"){ tag.className = "tag given"; tag.textContent = "わたした"; }
+    if (s.handed && s.handed!=="no"){ tag.className = "tag given"; tag.textContent = "わたした"; }
     else { tag.className = "tag kept"; tag.textContent = "じぶんだけの ことば"; }
-    body.appendChild(tag);
-    if (!r.handed || r.handed==="no"){
+    head.appendChild(tag);
+    if (s.turns.filter(t=>t.blob).length > 1){
+      const allBtn = document.createElement("button");
+      allBtn.className = "mini"; allBtn.textContent = "▶ ぜんぶ きく";
+      allBtn.addEventListener("click", ()=>{
+        if (seqBtn === allBtn){ stopPlay(); return; }
+        playAll(s.turns, allBtn);
+      });
+      head.appendChild(allBtn);
+    }
+    card.appendChild(head);
+    s.turns.forEach((t,i)=>card.appendChild(turnRow(t,i)));
+    if (!s.handed || s.handed==="no"){
       const later = document.createElement("button");
-      later.className = "mini"; later.style.marginTop = "8px";
+      later.className = "mini"; later.style.marginTop = "10px";
       later.textContent = "🎁 いまから わたす";
       later.addEventListener("click", async ()=>{
-        r.handed = "voice"; r.handedAt = Date.now(); await put(r);
+        s.handed = "voice"; s.handedAt = Date.now(); await put(s);
         say("わたしたよ"); renderBox();
       });
-      body.appendChild(later);
+      card.appendChild(later);
     }
-    el.appendChild(b); el.appendChild(body);
-    host.appendChild(el);
+    host.appendChild(card);
   });
+  say("ことばの たからばこ");
 }
 function jpDay(key){
   const [y,m,d] = key.split("-").map(Number);
   const w = "日月火水木金土"[new Date(y,m-1,d).getDay()];
-  const t = todayKey();
-  return (key===t ? "きょう ・ " : "") + `${m}月${d}日(${w})`;
+  return (key===todayKey() ? "きょう ・ " : "") + m+"月"+d+"日("+w+")";
 }
-
 function renderHelp(){
   $("#helpName").textContent = LS.get("cName","") || "（おうちのひとの がめんで きめてね）";
   $("#helpTel").textContent  = LS.get("cTel","")  || "—";
 }
-
 async function renderParent(){
   const rs = await all();
   const showAll = mode()==="all";
 
-  // 14日ぶんの信号
   const sig = $("#signal"); sig.innerHTML = "";
   for (let i=13;i>=0;i--){
     const d = new Date(); d.setDate(d.getDate()-i);
     const key = todayKey(d);
     const day = rs.filter(r=>r.day===key);
-    const given = day.some(r=>r.handed && r.handed!=="no");
+    const given = day.find(r=>r.handed && r.handed!=="no");
     const w = document.createElement("div"); w.className = "sig";
     const b = document.createElement("b");
-    b.className = given ? "given" : (day.length ? "talked" : "silent");
-    b.title = key + (given?"：渡してくれた":(day.length?"：話した":"：話さなかった"));
-    w.appendChild(b);
-    w.appendChild(document.createTextNode(d.getDate()));
+    if (given && given.feeling){ b.style.background = "var(--f-"+given.feeling+")"; b.title = key+"：渡してくれた（"+FEEL[given.feeling].label+"）"; }
+    else if (given){ b.style.background = "var(--baton)"; b.title = key+"：渡してくれた"; }
+    else if (day.length){ b.className = "talked"; b.title = key+"：話したが渡していない"; }
+    else { b.title = key+"：話さなかった"; }
+    w.appendChild(b); w.appendChild(document.createTextNode(d.getDate()));
     sig.appendChild(w);
   }
 
-  // スイッチ
   const m = mode();
   $("#pm1").checked = m==="child"; $("#pm2").checked = m==="all";
   document.querySelectorAll(".opt").forEach(o=>o.classList.toggle("sel", o.dataset.mode===m));
   $("#allNotice").hidden = m!=="all";
+  $("#cName").value = LS.get("cName",""); $("#cTel").value = LS.get("cTel","");
 
-  // 連絡先
-  $("#cName").value = LS.get("cName","");
-  $("#cTel").value  = LS.get("cTel","");
-
-  // 届いた声
   const list = $("#parentList"); list.innerHTML = "";
   const visible = rs.filter(r => showAll || (r.handed && r.handed!=="no"));
   if (!visible.length){
-    list.innerHTML = '<p class="sub" style="margin:0">まだ届いたものはありません。'+(showAll?"":"本人が渡してくれたら、ここに出ます。")+'</p>';
+    list.innerHTML = '<p class="sub" style="margin:0">まだ届いたものはありません。'
+      + (showAll ? "" : "本人が渡してくれたら、ここに出ます。") + '</p>';
     return;
   }
   let lastDay = "";
-  visible.forEach(r => {
-    if (r.day!==lastDay){ lastDay = r.day; const h=document.createElement("div"); h.className="day"; h.textContent=jpDay(r.day); list.appendChild(h); }
-    const el = document.createElement("div"); el.className = "item";
-    const textOnly = r.handed==="text";
-    if (!textOnly && r.blob){
-      const b = document.createElement("button"); b.className="play"; b.textContent="▶";
-      b.setAttribute("aria-label","声を聞く");
-      b.addEventListener("click", ()=>play(r.blob,b));
-      el.appendChild(b);
-    }
-    const body = document.createElement("div"); body.className="body";
-    const q = document.createElement("div"); q.className="qq";
-    q.textContent = r.question + "・" + new Date(r.at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
-    const tx = document.createElement("div"); tx.className="tx";
-    tx.textContent = r.transcriptOk ? r.transcript : (textOnly ? "（文字は取れませんでした）" : "（声のみ・"+fmt(r.ms)+"）");
-    body.appendChild(q); body.appendChild(tx);
+  visible.forEach(s => {
+    if (s.day!==lastDay){ lastDay = s.day;
+      const h=document.createElement("div"); h.className="day"; h.textContent=jpDay(s.day); list.appendChild(h); }
+    const card = document.createElement("div"); card.className = "sess";
+    const head = document.createElement("div"); head.className = "head";
+    const chip = feelChip(s.feeling); if (chip) head.appendChild(chip);
+    const time = document.createElement("span"); time.className = "time";
+    time.textContent = new Date(s.at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"});
+    head.appendChild(time);
     const tag = document.createElement("span");
-    if (r.handed && r.handed!=="no"){ tag.className="tag given"; tag.textContent = textOnly ? "本人が渡した（文字だけ）" : "本人が渡した"; }
+    if (s.handed && s.handed!=="no"){ tag.className="tag given"; tag.textContent = s.handed==="text" ? "本人が渡した（文字だけ）" : "本人が渡した"; }
     else { tag.className="tag kept"; tag.textContent="②ぜんぶ届く で表示中"; }
-    body.appendChild(tag);
-    el.appendChild(body);
-    list.appendChild(el);
+    head.appendChild(tag);
+    const textOnly = s.handed === "text";
+    if (!textOnly && s.turns.filter(t=>t.blob).length > 1){
+      const allBtn = document.createElement("button");
+      allBtn.className = "mini"; allBtn.textContent = "▶ ぜんぶ きく";
+      allBtn.addEventListener("click", ()=>{
+        if (seqBtn === allBtn){ stopPlay(); return; }
+        playAll(s.turns, allBtn);
+      });
+      head.appendChild(allBtn);
+    }
+    card.appendChild(head);
+    s.turns.forEach(t => {
+      const row = textOnly ? turnRow({ q:t.q, blob:null, ms:t.ms, transcript:t.transcript, transcriptOk:t.transcriptOk }) : turnRow(t);
+      card.appendChild(row);
+    });
+    list.appendChild(card);
   });
 }
 
-/* ════════ 8. そうさ ════════════════════════════════════════════ */
+/* ═══ 10. わたす ══════════════════════════════════════════════════ */
+$("#toGive").addEventListener("click", ()=>{
+  stopPlay();
+  if (mode()==="all"){
+    finish("voice","とどいたよ","はなしたことは ぜんぶ おうちのひとに とどいたよ。");
+    return;
+  }
+  go("give");
+  say("これ、おうちのひとに わたす？ わたすか わたさないかは、じぶんで きめていいよ");
+});
+$("#giveVoice").addEventListener("click", ()=>finish("voice","わたしたよ","こえが、おうちのひとに とどいたよ。"));
+$("#giveText").addEventListener("click", ()=>finish("text","わたしたよ","もじだけ とどいたよ。こえは たからばこに のこるよ。"));
+$("#giveNo").addEventListener("click", ()=>finish("no","たからばこに いれたよ","あとで わたしたくなったら、たからばこから わたせるよ。"));
+
+async function finish(kind, head, sub){
+  if (sess){
+    sess.handed = kind;
+    sess.handedAt = kind==="no" ? null : Date.now();
+    await put(sess);
+  }
+  releaseMic();
+  setDoneArt(kind==="no" ? "keep" : "give");
+  $("#doneHead").textContent = head; $("#doneSub").textContent = sub;
+  // つらい気持ちの日は、人に会える先を必ず出す
+  const tough = sess && TOUGH.indexOf(sess.feeling) >= 0;
+  const nm = LS.get("cName",""), tl = LS.get("cTel","");
+  $("#doneHelp").hidden = !(tough && (nm || tl));
+  $("#doneHelpName").textContent = nm || "—";
+  $("#doneHelpTel").textContent = tl || "—";
+  go("done");
+  say(head + "。" + sub + (tough && nm ? " こまったときは、" + nm + " に いえるよ。" : ""));
+}
+function setDoneArt(kind){
+  $("#artGive").hidden  = kind !== "give";
+  $("#artKeep").hidden  = kind !== "keep";
+  $("#artNight").hidden = kind !== "night";
+  if (kind === "night") $("#artNight").innerHTML = bird("sleep","bob");
+}
+$("#doneBox").addEventListener("click", ()=>go("box"));
+
+/* ═══ 11. そのほかの そうさ ═══════════════════════════════════════ */
 $("#btnVoice").addEventListener("click", () => {
   voiceOn = !voiceOn; LS.set("voice", voiceOn);
   $("#btnVoice").classList.toggle("on", voiceOn);
@@ -949,18 +1130,14 @@ $("#btnVoice").addEventListener("click", () => {
   $("#btnVoice").textContent = (voiceOn?"🔈":"🔇")+" よみあげ";
   if (voiceOn) say("よみあげを つけたよ"); else { try{ speechSynthesis.cancel(); }catch(e){} }
 });
-
-// 親の画面は 1.2秒の長押しで開く（子どもが迷い込まないように）
-(function(){
+(function(){   // 親の画面は長押しで開く（子どもが迷い込まないように）
   const btn = $("#btnParent"); btn.classList.add("hold");
   const fill = document.createElement("i"); fill.className = "fill"; btn.appendChild(fill);
-  let t = null, t0 = 0, raf = 0;
-  const HOLD = 1200;
+  let t = null, t0 = 0, raf = 0; const HOLD = 1200;
   const begin = (e) => {
     e.preventDefault(); t0 = Date.now();
     const anim = () => { fill.style.width = Math.min(100,(Date.now()-t0)/HOLD*100)+"%"; raf = requestAnimationFrame(anim); };
-    anim();
-    t = setTimeout(()=>{ cancel(); go("parent"); }, HOLD);
+    anim(); t = setTimeout(()=>{ cancel(); go("parent"); }, HOLD);
   };
   const cancel = () => { if(t) clearTimeout(t), t=null; if(raf) cancelAnimationFrame(raf), raf=0; fill.style.width="0%"; };
   btn.addEventListener("pointerdown", begin);
@@ -968,98 +1145,33 @@ $("#btnVoice").addEventListener("click", () => {
   btn.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go("parent"); } });
   btn.title = "長押しで開く";
 })();
-
-// マイクを用意してから しつもん画面へ。1回きょかできていれば、だまって取り直す。
-function ensureMicThenAsk(){
-  if (!micSupported()){ showBanner("このブラウザでは録音できません。Google Chrome で開いてください。"); return; }
-  if (stream){ go("ask"); return; }
-  go("mic");
-  if (LS.get("micOK", false)) getMic();   // 2回目以降はボタンを待たない
-}
-$("#goAsk").addEventListener("click", ensureMicThenAsk);
+$("#goTalk").addEventListener("click", ensureMicThenStart);
 $("#goBox").addEventListener("click", ()=>go("box"));
 $("#goHelp").addEventListener("click", ()=>go("help"));
 $("#askMic").addEventListener("click", getMic);
-$("#micRetry").addEventListener("click", ()=>{ $("#askMic").hidden=false; $("#micDenied").hidden=true; getMic(); });
-
-$("#qAgain").addEventListener("click", ()=>say(currentQ));
-$("#qNext").addEventListener("click", ()=>{ qIndex=(qIndex+1)%QUESTIONS.length; currentQ=QUESTIONS[qIndex]; $("#qText").textContent=currentQ; say(currentQ); });
-$("#qFree").addEventListener("click", ()=>{ currentQ=FREE_Q; $("#qText").textContent=currentQ; say(currentQ); });
-$("#startRec").addEventListener("click", beginRecording);
-$("#skipToday").addEventListener("click", ()=>{
-  releaseMic();
-  setDoneArt("night"); $("#doneHead").textContent="わかったよ";
-  $("#doneSub").textContent="きょうは いわなくて いいよ。あした また きくね。";
-  go("done"); say("わかったよ。あした また きくね");
-});
-$("#stopRec").addEventListener("click", endRecording);
-
-$("#playBack").addEventListener("click", ()=>play(pending && pending.blob, null));
-$("#redo").addEventListener("click", async ()=>{
-  // 前のも消さずに のこす（約束2）。もう一度マイクを取り直す。
-  pending = null;
-  ensureMicThenAsk();
-});
-$("#toGive").addEventListener("click", ()=>{
-  if (mode()==="all"){
-    // ②ぜんぶ届く：自動で届く。えらばせるふりはしない。
-    finish("voice", "🎁", "とどいたよ", "はなしたことは ぜんぶ おうちのひとに とどいたよ。");
-    return;
-  }
-  go("give");
-  say("これ、おうちのひとに わたす？ わたすか わたさないかは、じぶんで きめていいよ");
-});
-$("#giveVoice").addEventListener("click", ()=>finish("voice","🎁","わたしたよ","こえと ことばが、おうちのひとに とどいたよ。"));
-$("#giveText").addEventListener("click", ()=>finish("text","📝","わたしたよ","もじだけ おうちのひとに とどいたよ。こえは たからばこに のこるよ。"));
-$("#giveNo").addEventListener("click", ()=>finish("no","🧰","たからばこに いれたよ","あとで わたしたくなったら、たからばこから わたせるよ。"));
-
-async function finish(kind, ico, head, sub){
-  if (pending){
-    pending.handed = kind;
-    pending.handedAt = kind==="no" ? null : Date.now();
-    await put(pending);
-  }
-  releaseMic();
-  setDoneArt(kind==="no" ? "keep" : "give");
-  $("#doneHead").textContent = head; $("#doneSub").textContent = sub;
-  go("done"); say(head+"。"+sub);
-}
-$("#doneBox").addEventListener("click", ()=>go("box"));
-
+$("#micRetry").addEventListener("click", ()=>{ resetMicScreen(); getMic(); });
 document.querySelectorAll(".opt").forEach(o => {
-  o.addEventListener("click", () => {
-    LS.set("pmode", o.dataset.mode);
-    renderParent();
-  });
+  o.addEventListener("click", () => { LS.set("pmode", o.dataset.mode); renderParent(); });
 });
 $("#saveContact").addEventListener("click", ()=>{
-  LS.set("cName", $("#cName").value.trim());
-  LS.set("cTel", $("#cTel").value.trim());
-  $("#savedMsg").hidden = false;
-  setTimeout(()=>{ $("#savedMsg").hidden = true; }, 2000);
+  LS.set("cName", $("#cName").value.trim()); LS.set("cTel", $("#cTel").value.trim());
+  $("#savedMsg").hidden = false; setTimeout(()=>{ $("#savedMsg").hidden = true; }, 2000);
 });
-
 function showBanner(msg){ const b = $("#banner"); b.hidden = false; b.textContent = msg; }
 
-// おわり画面の え：わたした／たからばこ／きょうはいわない
-function setDoneArt(kind){
-  $("#artGive").hidden  = kind !== "give";
-  $("#artKeep").hidden  = kind !== "keep";
-  $("#artNight").hidden = kind !== "night";
-}
-
-/* ════════ 9. はじまり ══════════════════════════════════════════ */
+/* ═══ 12. はじまり ════════════════════════════════════════════════ */
 (async function boot(){
   $("#btnVoice").classList.toggle("on", voiceOn);
   $("#btnVoice").textContent = (voiceOn?"🔈":"🔇")+" よみあげ";
+  $("#micArt").innerHTML = birdUp();
   db = await openDB();
   if (!db){
     memOnly = true;
-    showBanner("いまは録音を保存できません（このURLでは保存領域が使えません）。ターミナルで python3 -m http.server 8000 を実行し、http://localhost:8000 で開いてください。");
+    showBanner("いまは録音を保存できません。ブラウザの設定でサイトデータが止められている可能性があります。");
   }
-  if (!micSupported()) showBanner("このブラウザでは録音できません。Google Chrome で開いてください。");
+  if (!micSupported()) showBanner("このブラウザでは録音できません。iPhoneはSafari、AndroidはChromeで開いてください。");
+  newSession();
   renderHome();
-  currentQ = QUESTIONS[qIndex];
 })();
 </script>
 </body>

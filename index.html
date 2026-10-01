@@ -472,17 +472,34 @@ const FACE_ACK = {
   wakaranai:"わからなくて いいよ。そのままで いいよ。"
 };
 
-/* 3往復。ボタンは押さない。質問は短く、2問目で気持ちを本人の声で言ってもらう。 */
+/* 3往復。ボタンは押さない。
+   大事なきまり：評価を求めない。続きを求める。
+   「どうだった？」は体験をまとめて採点しろという大人の質問で、子どもは
+   「たのしかった」「ふつう」「わかんない」しか返せない。
+   かわりに「それで、どうなったの？」と続きを求めると、気持ちは勝手に出てくる。 */
 const OPENERS = [
+  "きょう、きゅうしょく なに たべた？",   // ほぼ確実に答えられる入口
   "きょう、なにして あそんだ？",
-  "きょう、なにが あった？",
-  "きょう、だれと いた？",
-  "きょう、いちばん おぼえてるのは なに？"
+  "きょう、だれと あそんだ？",
+  "きょう、やすみじかん なにしてた？"
 ];
-const Q2 = "そのとき、どうだった？";
-const Q3 = "ほかに、はなしたいこと ある？";
+// たくさん話した子には「続き」を、あまり話さなかった子にはもっと具体的なことを聞く
+const Q2_LONG  = "それで、どうなったの？";
+const Q2_SHORT = "それ、だれと いたの？";
+const Q3_LONG  = "そのとき、なんて いったの？";
+const Q3_SHORT = "きょう、いちばん おもしろかったのは なに？";
 const NODS = ["そっか。","うんうん。","ちゃんと きいてるよ。","はなして くれて ありがとう。"];
-const QUESTIONS = [ () => OPENERS[Math.floor(Math.random()*OPENERS.length)], () => Q2, () => Q3 ];
+
+// 直前にどれだけ話したかで分ける。文字起こしに頼らないので iPhone でも効く。
+function talkedALot(){
+  const t = sess && sess.turns.length ? sess.turns[sess.turns.length-1] : null;
+  return !!(t && t.ms > 4000);
+}
+const QUESTIONS = [
+  () => OPENERS[Math.floor(Math.random()*OPENERS.length)],
+  () => talkedALot() ? Q2_LONG : Q2_SHORT,
+  () => talkedALot() ? Q3_LONG : Q3_SHORT
+];
 
 /* ═══ 2. ほぞん ═══════════════════════════════════════════════════ */
 const DB_NAME = "koe-no-baton", DB_VER = 2, STORE = "records";
